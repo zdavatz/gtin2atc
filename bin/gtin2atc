@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+
+root = Pathname.new(__FILE__).realpath.parent.parent
+$:.unshift root.join('lib') if $0 == __FILE__
+
+require 'optparse'
+require 'gtin2atc'
+require 'gtin2atc/options'
+
+options = Gtin2atc::Options.new
+
+args = ARGV.dup
+begin
+  options.parser.parse!(args)
+rescue OptionParser::MissingArgument,
+       OptionParser::InvalidArgument,
+       OptionParser::InvalidOption
+  puts Gtin2atc::Options.help
+  exit
+end
+
+opts = options.opts
+# TEMP
+if path = args.first
+  opts[:transfer_dat] = path
+end
+
+startTime = Time.now
+Swissmedic.get_latest
+diff = (Time.now-startTime).to_i
+puts "#{Time.now}: #{__LINE__} done. Took #{diff} seconds"; $stdout.sync

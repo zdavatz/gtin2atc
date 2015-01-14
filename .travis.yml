@@ -1,0 +1,27 @@
+language: ruby
+
+bundler_args: --without debugger
+
+cache: bundler
+
+before_install:
+  - gem --version
+
+script: bundle exec rspec
+
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - 2.1
+  - 2.2
+  - ruby-head
+  
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+
+notifications:
+  email:
+    recipients:
+      - ngiger@ywesee.com
+      - zdavatz@ywesee.com
