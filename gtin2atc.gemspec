@@ -24,10 +24,10 @@ Gem::Specification.new do |spec|
 #  spec.add_dependency 'archive-tar-minitar', '~> 0.5.2'
   spec.add_dependency 'mechanize', '~> 2.5.1'
   spec.add_dependency 'nokogiri', '~> 1.5.10'
-#  spec.add_dependency 'savon', '~> 2.4.0'
+  spec.add_dependency 'savon'#, '~> 2.4.0'
 #  spec.add_dependency 'spreadsheet', '~> 1.0.0'
-#  spec.add_dependency 'rubyXL', '~> 3.3.1'
-#  spec.add_dependency 'sax-machine',  '~> 0.1.0'
+  spec.add_dependency 'rubyXL'
+  spec.add_dependency 'sax-machine' #,  '~> 0.1.0'
   
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"

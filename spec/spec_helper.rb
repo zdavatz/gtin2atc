@@ -21,24 +21,27 @@ module Gtin2atc
   # be in different places compared when running
   SpecData       = File.join(File.dirname(__FILE__), 'data')
   WorkDir        = File.join(File.dirname(__FILE__), 'run')
-  Downloads      = File.join(WorkDir, 'downloads')
 end
 
 require 'gtin2atc'
 
 module ServerMockHelper
   def cleanup_directories_before_run
-    dirs = [ Gtin2atc::Downloads, Gtin2atc::WorkDir]
+    dirs = [  Gtin2atc::WorkDir]
     dirs.each{ |dir| FileUtils.rm_rf(Dir.glob(File.join(dir, '*')), :verbose => false) }
     dirs.each{ |dir| FileUtils.makedirs(dir, :verbose => false) }
   end
   
   def setup_server_mocks
+    puts "Running setup_bag_xml_server_mock"
+    stub_request(:get, "https://index.ws.e-mediat.net/Swissindex/Pharma/ws_Pharma_V101.asmx?WSDL").
+         with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+         to_return(:status => 200, :body => "", :headers => {})
+    setup_bag_xml_server_mock
+    puts 88
     return
     # setup_bag_xml_server_mock
     # setup_swiss_index_server_mock
-    puts "Running setup_server_mocks"
-    setup_swissmedic_server_mock
     return
     setup_swissmedic_info_server_mock
     setup_epha_server_mock
@@ -257,20 +260,6 @@ module ServerMockHelper
       with(:headers => {
         'Accept' => '*/*',
         'Host'   => 'www.medregbm.admin.ch',
-      }).
-      to_return(
-        :status  => 200,
-        :headers => {'Content-Type' => 'text/plain; charset=utf-8'},
-        :body    => stub_response)
-  end
-  def setup_zurrose_server_mock
-    # dat
-    stub_dat_url  = 'http://zurrose.com/fileadmin/main/lib/download.php?file=/fileadmin/user_upload/downloads/ProduktUpdate/IGM11_mit_MwSt/Vollstamm/transfer.dat'
-    stub_response = File.read(File.join(Gtin2atc::SpecData, 'zurrose_transfer.dat'))
-    stub_request(:get, stub_dat_url).
-      with(:headers => {
-        'Accept' => '*/*',
-        'Host'   => 'zurrose.com',
       }).
       to_return(
         :status  => 200,

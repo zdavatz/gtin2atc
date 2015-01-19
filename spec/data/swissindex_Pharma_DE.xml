@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <soap:Body>
+    <PHARMA xmlns="http://swissindex.e-mediat.net/SwissindexPharma_out_V101" CREATION_DATETIME="2015-01-19T12:10:17.3152785+01:00">
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680202580475</GTIN>
+        <PHAR>20209</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>2002-05-23T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>ERYTHROCIN i.v. Trockensub 1000 mg</DSCR>
+        <ADDSCR>Ampulle 1 Stk</ADDSCR>
+        <ATC>J01FA01</ATC>
+        <COMP>
+          <NAME>Pro Concepta Zug AG</NAME>
+          <GLN>7640111540007</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680316440115</GTIN>
+        <PHAR>20244</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>2002-05-23T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>FERRO-GRADUMET Depottabl</DSCR>
+        <ADDSCR>30 Stk</ADDSCR>
+        <ATC>B03AA07</ATC>
+        <COMP>
+          <NAME>Farmaceutica Teofarma Suisse SA (c/o Bernasconi Peter Gaggin</NAME>
+          <GLN>7601001374539</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680353660163</GTIN>
+        <PHAR>20273</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>2002-05-23T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>KENDURAL Depottabl</DSCR>
+        <ADDSCR>30 Stk</ADDSCR>
+        <ATC>B03AE10</ATC>
+        <COMP>
+          <NAME>Farmaceutica Teofarma Suisse SA (c/o Bernasconi Peter Gaggin</NAME>
+          <GLN>7601001374539</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680172330681</GTIN>
+        <PHAR>20652</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>2002-05-23T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>SELSUN Shampoo Susp</DSCR>
+        <ADDSCR>120 ml</ADDSCR>
+        <ATC>D11AC03</ATC>
+        <COMP>
+          <NAME>Doetsch Grether AG</NAME>
+          <GLN>7614700999989</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680324750190</GTIN>
+        <PHAR>23722</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>2002-06-05T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>LANSOYL Gel</DSCR>
+        <ADDSCR>225 g</ADDSCR>
+        <ATC>A06AA01</ATC>
+        <COMP>
+          <NAME>Actipharm SA</NAME>
+          <GLN>7601001002012</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680291520390</GTIN>
+        <PHAR>31532</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>1995-08-05T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>BEN-U-RON Supp 250 mg Kind</DSCR>
+        <ADDSCR>10 Stk</ADDSCR>
+        <ATC>N02BE01</ATC>
+        <COMP>
+          <NAME>Nutrimedis SA</NAME>
+          <GLN>7640110770009</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>4009077073203</GTIN>
+        <PHAR>41499</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>2001-02-05T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>SOLDAN EM EUKAL Bronchial Bonbons</DSCR>
+        <ADDSCR>Beutel 75 g</ADDSCR>
+        <ATC>R05X</ATC>
+        <COMP>
+          <NAME>Vifor SA</NAME>
+          <GLN>7601001001862</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680147690482</GTIN>
+        <PHAR>41803</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>1995-08-05T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>KETALGIN Inj Lös 10 mg/ml</DSCR>
+        <ADDSCR>100 Ampullen 1 ml</ADDSCR>
+        <ATC>N07BC02</ATC>
+        <COMP>
+          <NAME>Amino AG</NAME>
+          <GLN>7601001392571</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680147700112</GTIN>
+        <PHAR>41826</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>1995-08-05T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>KETALGIN Tabl 5 mg</DSCR>
+        <ADDSCR>20 Stk</ADDSCR>
+        <ATC>N07BC02</ATC>
+        <COMP>
+          <NAME>Amino AG</NAME>
+          <GLN>7601001392571</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680147700389</GTIN>
+        <PHAR>41832</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>1995-08-05T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>KETALGIN Tabl 5 mg</DSCR>
+        <ADDSCR>200 Stk</ADDSCR>
+        <ATC>N07BC02</ATC>
+        <COMP>
+          <NAME>Amino AG</NAME>
+          <GLN>7601001392571</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680199320283</GTIN>
+        <PHAR>41855</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>1995-08-05T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>KETALGIN Supp 10 mg</DSCR>
+        <ADDSCR>5 Stk</ADDSCR>
+        <ATC>N07BC02</ATC>
+        <COMP>
+          <NAME>Amino AG</NAME>
+          <GLN>7601001392571</GLN>
+        </COMP>
+      </ITEM>
+      <ITEM DT="2014-10-17T00:00:00">
+        <GTIN>7680331590215</GTIN>
+        <PHAR>47852</PHAR>
+        <STATUS>A</STATUS>
+        <STDATE>2013-07-04T00:00:00</STDATE>
+        <LANG>DE</LANG>
+        <DSCR>DEAFTOL Tabl m Lidocain</DSCR>
+        <ADDSCR>30 Stk</ADDSCR>
+        <ATC>A01AD11</ATC>
+        <COMP>
+          <NAME>Dr. Wild &amp; Co. AG</NAME>
+          <GLN>7601001002456</GLN>
+        </COMP>
+      </ITEM>
+      <RESULT>
+        <OK_ERROR>OK</OK_ERROR>
+        <NBR_RECORD>15775</NBR_RECORD>
+      </RESULT>
+    </PHARMA>
+  </soap:Body>
+</soap:Envelope>

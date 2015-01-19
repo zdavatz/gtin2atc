@@ -22,11 +22,25 @@ describe Gtin2atc::Builder do
   include ServerMockHelper
   before(:each) do
     @savedDir = Dir.pwd
-    cleanup_directories_before_run
-#    setup_server_mocks
+    FileUtils.makedirs Gtin2atc::WorkDir
     Dir.chdir Gtin2atc::WorkDir
+    Gtin2atc::Util.set_archive_dir(Gtin2atc::WorkDir)
+    cleanup_directories_before_run
+    setup_server_mocks
+    { 'XMLPublications' => '.zip',
+      'swissindex_Pharma_DE' => '.xml',
+      }.each {
+      |name, extension|
+      use4test = File.expand_path(File.join( __FILE__, '../data/'+name + extension))
+      latest, dated = Gtin2atc::Util.get_latest_and_dated_name(name, extension)
+      FileUtils.cp(use4test, latest, :verbose => true)
+    }
   end
   after(:each) do
+    Dir.chdir @savedDir if @savedDir and File.directory?(@savedDir)
+  end
+  after(:all) do
+    puts "Dir pwe #{Dir.pwd} Gtin2atc::WorkDir #{Gtin2atc::WorkDir}"
     Dir.chdir @savedDir if @savedDir and File.directory?(@savedDir)
   end
 
@@ -34,31 +48,17 @@ describe Gtin2atc::Builder do
     let(:cli) do
       options = Gtin2atc::Options.new
       options.parser.parse!('--log'.split(' '))
-      # require 'pry'; binding.pry
-      latest, dated = Gtin2atc::Util.get_latest_and_dated_name('Packungen', '.xlsx')
-      FileUtils.makedirs(File.dirname(latest))
-      FileUtils.makedirs(File.dirname(dated))
-      use4test = File.expand_path(File.join( __FILE__, '../data/swissmedic_package.xlsx'))
-      FileUtils.cp(use4test, latest, :verbose => true)
-      FileUtils.cp(use4test, dated,  :verbose => true)
       Gtin2atc::Builder.new(options.opts)
     end
 
-    it 'should contain the correct prices' do
-#      res = buildr_capture(:stdout){ cli.run }
-      res =cli.run
-      @article_xml = File.expand_path(File.join(Gtin2atc::WorkDir, 'oddb_article.xml'))
-      File.exists?(@article_xml).should eq true
-      article_xml = IO.read(@article_xml)
-      product_filename = File.expand_path(File.join(Gtin2atc::WorkDir, 'oddb_product.xml'))
-      File.exists?(product_filename).should eq true
-      doc = REXML::Document.new File.new(@article_xml)
-      unless /1\.8\.7/.match(RUBY_VERSION)
-        price_zur_rose = XPath.match( doc, "//ART[DSCRD='SOFRADEX Gtt Auric']/ARTPRI[PTYP='ZURROSE']/PRICE").first.text
-        price_zur_rose.should eq '12.9'
-        price_zur_rose_pub = XPath.match( doc, "//ART[DSCRD='SOFRADEX Gtt Auric']/ARTPRI[PTYP='ZURROSEPUB']/PRICE").first.text
-        price_zur_rose_pub.should eq '15.45'
-      end
+    it 'should produce a correct csv' do
+      @res = buildr_capture(:stdout){ cli.run }
+      puts "@res ist #{@res.inspect}"
+      ['gtin2atc_bag.csv', 'gtin2atc_swissindex.csv'].each {
+        |file|
+          puts "File #{File.expand_path(file)}"
+          File.exists?(file).should eq true
+      }
     end
   end
 

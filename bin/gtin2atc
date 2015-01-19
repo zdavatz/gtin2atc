@@ -7,7 +7,7 @@ $:.unshift root.join('lib') if $0 == __FILE__
 
 require 'optparse'
 require 'gtin2atc'
-require 'gtin2atc/options'
+require 'gtin2atc/builder'
 
 options = Gtin2atc::Options.new
 
@@ -28,6 +28,6 @@ if path = args.first
 end
 
 startTime = Time.now
-Swissmedic.get_latest
+Gtin2atc::Builder.new(opts).run
 diff = (Time.now-startTime).to_i
 puts "#{Time.now}: #{__LINE__} done. Took #{diff} seconds"; $stdout.sync
