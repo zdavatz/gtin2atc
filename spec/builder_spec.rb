@@ -52,12 +52,15 @@ describe Gtin2atc::Builder do
     end
 
     it 'should produce a correct csv' do
-      @res = buildr_capture(:stdout){ cli.run }
+      # @res = buildr_capture(:stdout){ cli.run }
+      @res = cli.run
       puts "@res ist #{@res.inspect}"
       ['gtin2atc_bag.csv', 'gtin2atc_swissindex.csv'].each {
         |file|
           puts "File #{File.expand_path(file)}"
           File.exists?(file).should eq true
+          inhalt = IO.read(file)
+          puts inhalt
       }
     end
   end

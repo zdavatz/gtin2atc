@@ -37,6 +37,10 @@ module ServerMockHelper
     stub_request(:get, "https://index.ws.e-mediat.net/Swissindex/Pharma/ws_Pharma_V101.asmx?WSDL").
          with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
          to_return(:status => 200, :body => "", :headers => {})
+    stub_request(:get, "https://index.ws.e-mediat.net/Swissindex/Pharma/ws_Pharma_V101.asmx").
+      with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+      to_return(:status => 200, :body => "", :headers => {})
+
     setup_bag_xml_server_mock
     puts 88
     return

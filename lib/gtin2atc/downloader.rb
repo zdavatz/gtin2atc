@@ -145,8 +145,8 @@ module Gtin2atc
     def initialize(options={}, type=:pharma, lang='DE')
       @type = (type == :pharma ? 'Pharma' : 'NonPharma')
       @lang = lang
-      url = "https://index.ws.e-mediat.net/Swissindex/#{@type}/ws_#{@type}_V101.asmx?WSDL"
-      super(options, url)
+      @url = "https://index.ws.e-mediat.net/Swissindex/#{@type}/ws_#{@type}_V101.asmx?WSDL"
+      super(options, @url)
     end
     def init
       config = {
@@ -160,11 +160,10 @@ module Gtin2atc
     end
     def download
       begin
-        filename =  "swissindex_#{@type}_#{@lang}.xml"
-        file2save = File.join(WorkDir, "swissindex_#{@type}_#{@lang}.xml")
+        file2save, dated = Gtin2atc::Util.get_latest_and_dated_name("swissindex_#{@type}_#{@lang}", '.xml')
         if File.exists?(file2save) and diff_hours = ((Time.now-File.ctime(file2save)).to_i/3600) and diff_hours < 24
           puts "Skip download of #{file2save} as only #{diff_hours} hours old"
-          IO.read(file2save)
+          return IO.read(file2save)
         end
         FileUtils.rm_f(file2save, :verbose => false)
         soap = <<XML
@@ -181,6 +180,8 @@ XML
             response = nil # win
             FileUtils.makedirs(WorkDir)
             File.open(file2save, 'w+') { |file| file.write xml }
+            puts "success!!"
+            exit 4
           else
             # received broken data or internal error
             raise StandardError
