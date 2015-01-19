@@ -17,3 +17,6 @@ tmp
 .ruby-version
 spec/run
 .~lock*
+/*.xml
+/*.csv
+/*.zip

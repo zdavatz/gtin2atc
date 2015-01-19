@@ -55,6 +55,7 @@ module Gtin2atc
         cert_store.add_file(File.expand_path('../../../tools/cacert.pem', __FILE__))
         @agent.cert_store = cert_store
       end
+      puts "Downloader @agent ist #{@agent}"
     end
     protected
     def retrievable?
@@ -138,6 +139,48 @@ module Gtin2atc
       end
       content = read_xml_from_zip(/Preparations.xml/, File.join(Util.get_archive, File.basename(file)))
       content
+    end
+  end
+  class SwissmedicDownloader < Downloader
+    def initialize(type=:orphan)
+      @type = :package
+      @xpath = "//div[@id='sprungmarke10_7']//a[@title='Excel-Version Zugelassene Verpackungen*']"
+      url = "http://www.swissmedic.ch/arzneimittel/00156/00221/00222/00230/index.html?lang=de"
+      super({}, url)
+    end
+    def init
+      config = {
+        :log_level       => :info,
+        :log             => false, # $stdout
+        :raise_errors    => true,
+        :ssl_version     => :SSLv3,
+        :wsdl            => @url
+      }
+      @client = Savon::Client.new(config)
+    end
+    def download
+      file2save, dated = Gtin2atc::Util.get_latest_and_dated_name("swissmedic_package", '.xlsx')
+      if File.exists?(file2save) and diff_hours = ((Time.now-File.ctime(file2save)).to_i/3600) and diff_hours < 24
+        puts "Skip download of #{file2save} as only #{diff_hours} hours old"
+        return File.expand_path(file2save)
+      end
+      puts "Must download #{file2save} #{File.expand_path(file2save)}"
+      begin
+        @agent = Mechanize.new
+        page = @agent.get(@url)
+        if link_node = page.search(@xpath).first
+          link = Mechanize::Page::Link.new(link_node, @agent, page)
+          response = link.click
+          response.save_as(file2save)
+          response = nil # win
+        end
+        return File.expand_path(file2save)
+      rescue Timeout::Error, Errno::ETIMEDOUT
+        retrievable? ? retry : raise
+      ensure
+        Gtin2atc.download_finished(file2save, false)
+      end
+      return File.expand_path(file2save)
     end
   end
 
