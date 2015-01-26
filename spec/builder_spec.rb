@@ -80,6 +80,7 @@ describe Gtin2atc::Builder do
       /7680353660163/.match(inhalt[1]).should == nil
       /7680147690482/.match(inhalt[2]).should == nil
       /7680353660163/.match(inhalt[2]).should_not == nil
+      /7680353660163,B03AE10,20273,KENDURAL Depottabl/.match(inhalt[2]).should_not == nil
     end
   end
 
@@ -109,8 +110,9 @@ describe Gtin2atc::Builder do
       [ /Found infos/,
         /Fetched from/,
         /Matching/,
-        /Not in BAG/,
-        /Not in Packungen/,
+        /not in BAG/,
+        /not in SwissMedic/,
+        /not in SwissIndex/,
         /ATC-Codes diff/,
       ].each {
         |pattern|
