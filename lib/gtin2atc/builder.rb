@@ -46,8 +46,8 @@ module Gtin2atc
           gtin = (ean_base12.ljust(12, '0') + calc_checksum(ean_base12)).to_i
           item = {}
           item[:gtin]            = gtin
-          # item[:pharmacode]      = (phar = pac.PHAR)   ? phar: ''
-          item[:atc_code]        =  row[atc] ? row[atc].value.to_s : ''
+          item[:atc_code]         =  row[atc] ? row[atc].value.to_s : ''
+          item[:name]             =  row[2].value.to_s
           data[gtin] = item
         end
       end
@@ -68,6 +68,7 @@ module Gtin2atc
         item[:gtin]            = gtin
         item[:pharmacode]      = (phar = pac.PHAR)   ? phar: ''
         item[:atc_code]        = (code = pac.ATC)    ? code.to_s : ''
+        item[:description]     = pac.DSCR
         data[gtin] = item
       end
       Util.debug_msg "swissindex_xml_extractor extracted #{data.size} items"
@@ -89,6 +90,7 @@ module Gtin2atc
           if gtin
             gtin = gtin.to_i
             item[:gtin] = gtin
+            item[:name] = seq.NameDe + " " +  pac.DescriptionDe
             data[gtin] = item
             Util.debug_msg "run_bag_extractor add #{item}" if $VERBOSE
           else
@@ -106,9 +108,9 @@ module Gtin2atc
       @data_swissindex = swissindex_xml_extractor
       output_name =  File.join(Util.get_archive, @do_compare ? 'gtin2atc_swissindex.csv' : 'gtin2atc.csv')
       CSV.open(output_name,'w+') do |csvfile|
-        csvfile << ["gtin", "ATC", 'pharmacode']
+        csvfile << ["gtin", "ATC", 'pharmacode', 'description']
         @data_swissindex.sort.each do |gtin, item|
-          csvfile << [gtin, item[:atc_code], item[:pharmacode]] if  @do_compare or gtins_to_parse.size == 0 or gtins_to_parse.index(gtin.to_s)
+          csvfile << [gtin, item[:atc_code], item[:pharmacode], item[:description]] if  @do_compare or gtins_to_parse.size == 0 or gtins_to_parse.index(gtin.to_s)
         end
       end
       msg = "SwissIndex: Extracted #{gtins_to_parse.size} of #{@data_swissindex.size} items into #{output_name} for #{gtins_to_parse}"
@@ -117,35 +119,34 @@ module Gtin2atc
         @data_bag = bag_xml_extractor
         output_name =  File.join(Util.get_archive, 'gtin2atc_bag.csv')
         CSV.open(output_name,'w+') do |csvfile|
-          csvfile << ["gtin", "ATC"]
+          csvfile << ["gtin", "ATC", 'description']
           @data_bag.sort.each do |gtin, item|
-            csvfile << [gtin, item[:atc_code]]
+            csvfile << [gtin, item[:atc_code], item[:description]]
           end
         end
         Util.debug_msg "BAG: Extracted #{gtins_to_parse.size} of #{@data_bag.size} items into #{output_name} for #{gtins_to_parse}"
       end
       if @do_compare
         @data_swissmedic = swissmedic_xls_extractor
-        output_name =  File.join(Util.get_archive, 'gtin2atc_packungen.csv')
+        output_name =  File.join(Util.get_archive, 'gtin2atc_swissmedic.csv')
         CSV.open(output_name,'w+') do |csvfile|
-          csvfile << ["gtin", "ATC"]
+          csvfile << ["gtin", "ATC", 'description']
           @data_swissmedic.sort.each do |gtin, item|
-            csvfile << [gtin, item[:atc_code], item[:pharmacode]]
+            csvfile << [gtin, item[:atc_code], item[:pharmacode], item[:description]]
           end
         end
         Util.debug_msg "SwissMedic: Extracted #{@data_swissmedic.size} items into #{output_name}"
       end
-      compare(gtins_to_parse) if @do_compare
+      compare if @do_compare
     end
 
-    def compare(gtins_to_parse=nil)
+    def compare
       all_gtin = @data_bag.merge(@data_swissindex).merge(@data_swissmedic).sort
       matching = 0
       not_in_bag = 0
       not_in_packungen = 0
       not_in_swissindex = 0
       different_atc = 0
-      # require 'pry'; binding.pry
       all_gtin.each{
         |gtin, item|
         if @data_bag[gtin] and @data_swissindex[gtin] and @data_bag[gtin][1] == @data_swissindex[gtin][1]

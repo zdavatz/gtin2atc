@@ -101,7 +101,7 @@ describe Gtin2atc::Builder do
       @res = buildr_capture(:stdout){ cli.run }
       check_csv('gtin2atc_bag.csv')
       check_csv('gtin2atc_swissindex.csv')
-      check_csv('gtin2atc_packungen.csv')
+      check_csv('gtin2atc_swissmedic.csv')
     end
 
     it 'should produce a good logging output' do
