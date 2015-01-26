@@ -1,0 +1,19 @@
+h2. gtin2atc
+
+h3. usage
+
+There are three different useage:
+# gtin2atc --compare
+  Reads the GTIN/ATC-Code from BAG, SwissMedic, RefData and compares the from constency.
+  When adding --log it outputs a line for each difference/problem found.
+# gtin2atc gtin1 [gtinx]
+  Search for ATC-Code with GTIN(s) passed on command line. Outputs a file gtin2atc.csv
+# gtin2atc file_with_one_gtin_per_line
+  Reads file_with_one_gtin_per_line, then putputs a file gtin2atc.csv with info about each GTIN found in the input file
+
+h3. background
+
+We get the data from three sources
+* e-mediat: http://swissindex.e-mediat.net/SwissindexPharma_out_V101
+* BAG: Preparations.xml inside http://bag.e-mediat.net/SL2007.Web.External/File.axd?file=XMLPublications.zip
+* Swissmedic: http://www.swissmedic.ch/arzneimittel/00156/00221/00222/00230/index.html?lang=de

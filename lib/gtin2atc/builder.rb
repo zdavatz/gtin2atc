@@ -9,7 +9,13 @@ module Gtin2atc
   class Builder
     Strip_For_Sax_Machine = '<?xml version="1.0" encoding="utf-8"?>'+"\n"
     def initialize(opts)
-      puts "Builder: opts are #{opts}"
+      Util.set_logging(opts[:log])
+      @do_compare = opts[:compare]
+      Util.debug_msg "Builder: opts are #{opts} @do_compare is #{@do_compare}"
+      @data_swissmedic = {}
+      @data_bag = {}
+      @data_swissindex = {}
+      @bag_entries_without_gtin = 0
     end
     def calc_checksum(str)
       str = str.strip
@@ -22,35 +28,35 @@ module Gtin2atc
       ((10-(sum%10))%10).to_s
     end
     def swissmedic_xls_extractor
-      filename = SwissmedicDownloader.new.download
+      @swissmedic = SwissmedicDownloader.new
+      filename = @swissmedic.download
       Util.debug_msg "swissmedic_xls_extractor xml is #{filename}"
       data = {}
       @sheet = RubyXL::Parser.parse(File.expand_path(filename)).worksheets[0]
-      @sheet.each do |row|
-        i_5,i_3   = 0,10 # :swissmedic_numbers
-        atc       = 5    # :atc_code
-        @sheet.each_with_index do |row, i|
-          next if (i <= 1)
-          next unless row[i_5] and row[i_3]
-           no8 = sprintf('%05d',row[i_5].value.to_i) + sprintf('%03d',row[i_3].value.to_i)
-          unless no8.empty?
-            next if no8.to_i == 0
-            item = {}
-            ean_base12 = "7680#{no8}"
-            gtin = (ean_base12.ljust(12, '0') + calc_checksum(ean_base12)).to_i
-            item = {}
-            item[:gtin]            = gtin
-            # item[:pharmacode]      = (phar = pac.PHAR)   ? phar: ''
-            item[:atc_code]        =  row[atc] ? row[atc].value.to_s : ''
-            data[gtin] = item
-          end
+      i_5,i_3   = 0,10 # :swissmedic_numbers
+      atc       = 5    # :atc_code
+      @sheet.each_with_index do |row, i|
+        next if (i <= 1)
+        next unless row[i_5] and row[i_3]
+        no8 = sprintf('%05d',row[i_5].value.to_i) + sprintf('%03d',row[i_3].value.to_i)
+        unless no8.empty?
+          next if no8.to_i == 0
+          item = {}
+          ean_base12 = "7680#{no8}"
+          gtin = (ean_base12.ljust(12, '0') + calc_checksum(ean_base12)).to_i
+          item = {}
+          item[:gtin]            = gtin
+          # item[:pharmacode]      = (phar = pac.PHAR)   ? phar: ''
+          item[:atc_code]        =  row[atc] ? row[atc].value.to_s : ''
+          data[gtin] = item
         end
       end
       Util.debug_msg "swissmedic_xls_extractor extracted #{data.size} items"
       data
     end
     def swissindex_xml_extractor
-      xml = SwissIndexDownloader.new.download
+      @swissindex = SwissIndexDownloader.new
+      xml = @swissindex.download
       Util.debug_msg "swissindex_xml_extractor xml is #{xml.size} bytes long"
       data = {}
       result = PharmaEntry.parse(xml.sub(Strip_For_Sax_Machine, ''), :lazy => true)
@@ -69,11 +75,12 @@ module Gtin2atc
     end
     def bag_xml_extractor
       data = {}
-      xml = BagXmlDownloader.new.download
+      @bag = BagXmlDownloader.new
+      xml = @bag.download
       Util.debug_msg "bag_xml_extractor xml is #{xml.size} bytes long"
 
       result = PreparationsEntry.parse(xml.sub(Strip_For_Sax_Machine, ''), :lazy => true)
-      nr_skips = 0
+      @bag_entries_without_gtin = 0
       result.Preparations.Preparation.each do |seq|
         item = {}
         item[:atc_code]     = (atcc = seq.AtcCode)       ? atcc : ''
@@ -85,82 +92,95 @@ module Gtin2atc
             data[gtin] = item
             Util.debug_msg "run_bag_extractor add #{item}" if $VERBOSE
           else
-            nr_skips += 1
-            Util.debug_msg "run_bag_extractor skip phar #{seq.NameDe}: #{seq.DescriptionDe} without gtin"
+            @bag_entries_without_gtin += 1
+            Util.debug_msg "run_bag_extractor skip phar #{seq.NameDe}: #{seq.DescriptionDe} without gtin."
           end
         end
       end
-      Util.debug_msg "bag_xml_extractor extracted #{data.size} items. Skipped #{nr_skips} entries without gtin"
+      Util.debug_msg "bag_xml_extractor extracted #{data.size} items. Skipped #{@bag_entries_without_gtin} entries without gtin"
       data
     end
-    def run(gtins_to_parse=nil)
-      @data_bag = bag_xml_extractor
-      output_name =  File.join(Util.get_archive, 'gtin2atc_bag.csv')
-      CSV.open(output_name,'w+') do |csvfile|
-        csvfile << ["gtin", "ATC"]
-        @data_bag.sort.each do |gtin, item|
-          csvfile << [gtin, item[:atc_code]]
-        end
-      end
-      puts "Extracted #{@data_bag.size} items into #{output_name}"
+    def run(gtins_to_parse=[])
+      Util.debug_msg("run #{gtins_to_parse}")
+      Util.debug_msg("@use_swissindex true")
       @data_swissindex = swissindex_xml_extractor
-      output_name =  File.join(Util.get_archive, 'gtin2atc_swissindex.csv')
+      output_name =  File.join(Util.get_archive, @do_compare ? 'gtin2atc_swissindex.csv' : 'gtin2atc.csv')
       CSV.open(output_name,'w+') do |csvfile|
         csvfile << ["gtin", "ATC", 'pharmacode']
         @data_swissindex.sort.each do |gtin, item|
-          csvfile << [gtin, item[:atc_code], item[:pharmacode]]
+          csvfile << [gtin, item[:atc_code], item[:pharmacode]] if  @do_compare or gtins_to_parse.size == 0 or gtins_to_parse.index(gtin.to_s)
         end
       end
-      puts "Extracted #{@data_swissindex.size} items into #{output_name}"
-#      require 'pry'; binding.pry
-      @data_packungen = swissmedic_xls_extractor
-      output_name =  File.join(Util.get_archive, 'gtin2atc_packungen.csv')
-
-      CSV.open(output_name,'w+') do |csvfile|
-        csvfile << ["gtin", "ATC"]
-        @data_packungen.sort.each do |gtin, item|
-          csvfile << [gtin, item[:atc_code], item[:pharmacode]]
+      msg = "SwissIndex: Extracted #{gtins_to_parse.size} of #{@data_swissindex.size} items into #{output_name} for #{gtins_to_parse}"
+      Util.debug_msg(msg)
+      if @do_compare
+        @data_bag = bag_xml_extractor
+        output_name =  File.join(Util.get_archive, 'gtin2atc_bag.csv')
+        CSV.open(output_name,'w+') do |csvfile|
+          csvfile << ["gtin", "ATC"]
+          @data_bag.sort.each do |gtin, item|
+            csvfile << [gtin, item[:atc_code]]
+          end
         end
+        Util.debug_msg "BAG: Extracted #{gtins_to_parse.size} of #{@data_bag.size} items into #{output_name} for #{gtins_to_parse}"
       end
-      puts "Extracted #{@data_packungen.size} items into #{output_name}"
-      compare(gtins_to_parse)
+      if @do_compare
+        @data_swissmedic = swissmedic_xls_extractor
+        output_name =  File.join(Util.get_archive, 'gtin2atc_packungen.csv')
+        CSV.open(output_name,'w+') do |csvfile|
+          csvfile << ["gtin", "ATC"]
+          @data_swissmedic.sort.each do |gtin, item|
+            csvfile << [gtin, item[:atc_code], item[:pharmacode]]
+          end
+        end
+        Util.debug_msg "SwissMedic: Extracted #{@data_swissmedic.size} items into #{output_name}"
+      end
+      compare(gtins_to_parse) if @do_compare
     end
 
     def compare(gtins_to_parse=nil)
-      all_gtin = @data_bag.merge(@data_swissindex).merge(@data_packungen).sort
+      all_gtin = @data_bag.merge(@data_swissindex).merge(@data_swissmedic).sort
       matching = 0
       not_in_bag = 0
       not_in_packungen = 0
       not_in_swissindex = 0
       different_atc = 0
-      check_gtins = gtins_to_parse ? gtins_to_parse : all_gtin
-      check_gtins.each{
+      # require 'pry'; binding.pry
+      all_gtin.each{
         |gtin, item|
         if @data_bag[gtin] and @data_swissindex[gtin] and @data_bag[gtin][1] == @data_swissindex[gtin][1]
           matching += 1
           next
         end
-        unless @data_packungen[gtin]
-          puts "#{gtin}: Not in Packungen #{item}"
+        unless @data_swissmedic[gtin]
+          Util.debug_msg "#{gtin}: Not in Packungen #{item}"
           not_in_packungen += 1
           next
         end
         unless @data_swissindex[gtin]
-          puts "#{gtin}: Not in SwissIndex #{item}"
+          Util.debug_msg "#{gtin}: Not in SwissIndex #{item}"
           not_in_swissindex += 1
           next
         end
         unless @data_bag[gtin]
-          puts "#{gtin}: Not in BAG #{item}"
+          Util.debug_msg "#{gtin}: Not in BAG #{item}"
           not_in_bag += 1
           next
         end
         different_atc += 1
-        puts "#{gtin}: ATC code differs BAG #{@data_bag[gtin][:atc_code]} swissindex  #{@data_swissindex[gtin][:atc_code]}"
+        Util.debug_msg "#{gtin}: ATC code differs BAG #{@data_bag[gtin][:atc_code]} swissindex  #{@data_swissindex[gtin][:atc_code]}"
       }
-      puts "Compared #{all_gtin.size} entries from BAG and SwissIndex. \m" +
-          " Matching #{matching} Not in BAG #{not_in_bag} Not in SwissIndex #{not_in_swissindex}\n"+
-          " Not in Packungen #{not_in_packungen}  ATC-Codes differ #{different_atc}"
+      Util.info  "Resumen:
+  Found infos about #{all_gtin.size}  entries
+  BAG #{@data_bag.size} entries. #{@bag_entries_without_gtin.size} entries had not GTIN field.. Fetched from #{@bag.origin}
+  SwissIndex #{@data_swissindex.size} entries. Fetched from #{@swissindex.origin}
+  SwissMedic #{@data_swissmedic.size} entries. Fetched from #{@swissmedic.origin}
+  Matching #{matching} items.
+  Not in BAG #{not_in_bag}
+  Not in SwissIndex #{not_in_swissindex}
+  Not in Packungen #{not_in_packungen}
+  ATC-Codes differ #{different_atc}
+"
     end
   end
   class Swissmedic
@@ -173,7 +193,7 @@ module Gtin2atc
         Util.debug_msg "#{__FILE__}: #{__LINE__} skip writing #{target} as it already exists and is #{File.size(target)} bytes."
         return target
       end
-      $stderr.puts "target #{target} #{latest_name}"
+      Util.debug_msg "target #{target} #{latest_name}"
       latest = ''
       if(File.exist? latest_name)
         latest = File.read latest_name

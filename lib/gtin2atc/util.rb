@@ -3,6 +3,7 @@ module Gtin2atc
   class Util
     @@archive = File.expand_path(File.join(__FILE__, '../../..'))
     @@today   = Date.today
+    @@logging = false
     def Util.get_today
       @@today
     end
@@ -12,14 +13,27 @@ module Gtin2atc
     def Util.get_archive
       @@archive
     end
-    def Util.debug_msg(msg)
-      if defined?(MiniTest) then $stdout.puts Time.now.to_s + ': ' + msg; $stdout.flush; return end
+    def Util.set_logging(default)
+      @@logging = default
+    end
+    def Util.info(msg)
+      return unless @@logging
+      Util.init
+      @@checkLog.puts("#{Time.now}: #{msg}")
+      puts Time.now.to_s + ': ' + msg
+    end
+    def Util.init
+      return unless @@logging
       if not defined?(@@checkLog) or not @@checkLog
         name = File.join(@@archive, 'log.log')
         FileUtils.makedirs(@@archive)
         @@checkLog = File.open(name, 'a+')
-        $stdout.puts "Opened #{name}"
       end
+    end
+    def Util.debug_msg(msg)
+      return unless @@logging
+      Util.init
+      if @@logging or defined?(MiniTest) then $stdout.puts Time.now.to_s + ': ' + msg; $stdout.flush; return end
       @@checkLog.puts("#{Time.now}: #{msg}")
       @@checkLog.flush
     end

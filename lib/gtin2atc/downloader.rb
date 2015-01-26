@@ -55,7 +55,7 @@ module Gtin2atc
         cert_store.add_file(File.expand_path('../../../tools/cacert.pem', __FILE__))
         @agent.cert_store = cert_store
       end
-      puts "Downloader @agent ist #{@agent}"
+      Util.debug_msg "Downloader @agent ist #{@agent}"
     end
     protected
     def retrievable?
@@ -120,11 +120,14 @@ module Gtin2atc
       super
       @url ||= 'http://bag.e-mediat.net/SL2007.Web.External/File.axd?file=XMLPublications.zip'
     end
+    def origin
+      @url
+    end
     def download
       file = File.join(WorkDir, 'XMLPublications.zip')
       Gtin2atc.log "BagXmlDownloader #{__LINE__}: #{file} from #{@url}"
       if File.exists?(file) and diff_hours = ((Time.now-File.ctime(file)).to_i/3600) and diff_hours < 24
-        puts "Skip download of #{file} as only #{diff_hours} hours old"
+        Util.debug_msg "Skip download of #{file} as only #{diff_hours} hours old"
       else
         FileUtils.rm_f(file, :verbose => true)
         begin
@@ -145,8 +148,11 @@ module Gtin2atc
     def initialize(type=:orphan)
       @type = :package
       @xpath = "//div[@id='sprungmarke10_7']//a[@title='Excel-Version Zugelassene Verpackungen*']"
-      url = "http://www.swissmedic.ch/arzneimittel/00156/00221/00222/00230/index.html?lang=de"
-      super({}, url)
+      @url = "http://www.swissmedic.ch/arzneimittel/00156/00221/00222/00230/index.html?lang=de"
+      super({}, @url)
+    end
+    def origin
+      @url
     end
     def init
       config = {
@@ -161,10 +167,10 @@ module Gtin2atc
     def download
       file2save, dated = Gtin2atc::Util.get_latest_and_dated_name("swissmedic_package", '.xlsx')
       if File.exists?(file2save) and diff_hours = ((Time.now-File.ctime(file2save)).to_i/3600) and diff_hours < 24
-        puts "Skip download of #{file2save} as only #{diff_hours} hours old"
+        Util.debug_msg "Skip download of #{file2save} as only #{diff_hours} hours old"
         return File.expand_path(file2save)
       end
-      puts "Must download #{file2save} #{File.expand_path(file2save)}"
+      Util.debug_msg "Must download #{file2save} #{File.expand_path(file2save)}"
       begin
         @agent = Mechanize.new
         page = @agent.get(@url)
@@ -191,6 +197,9 @@ module Gtin2atc
       @url = "https://index.ws.e-mediat.net/Swissindex/#{@type}/ws_#{@type}_V101.asmx?WSDL"
       super(options, @url)
     end
+    def origin
+      @url
+    end
     def init
       config = {
         :log_level       => :info,
@@ -205,7 +214,7 @@ module Gtin2atc
       begin
         file2save, dated = Gtin2atc::Util.get_latest_and_dated_name("swissindex_#{@type}_#{@lang}", '.xml')
         if File.exists?(file2save) and diff_hours = ((Time.now-File.ctime(file2save)).to_i/3600) and diff_hours < 24
-          puts "Skip download of #{file2save} as only #{diff_hours} hours old"
+          Util.debug_msg "Skip download of #{file2save} as only #{diff_hours} hours old"
           return IO.read(file2save)
         end
         FileUtils.rm_f(file2save, :verbose => false)
@@ -223,8 +232,7 @@ XML
             response = nil # win
             FileUtils.makedirs(WorkDir)
             File.open(file2save, 'w+') { |file| file.write xml }
-            puts "success!!"
-            exit 4
+            Util.debug_msg "Swissindex download successful"
           else
             # received broken data or internal error
             raise StandardError
@@ -237,7 +245,7 @@ XML
       rescue Timeout::Error, Errno::ETIMEDOUT
         retrievable? ? retry : raise
       end
-      puts "Download of #{file2save} finished"
+      Util.debug_msg "Download of #{file2save} finished"
       xml
     end
   end

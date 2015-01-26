@@ -8,12 +8,12 @@ $:.unshift root.join('lib') if $0 == __FILE__
 require 'optparse'
 require 'gtin2atc'
 require 'gtin2atc/builder'
+require "gtin2atc/util"
 
 options = Gtin2atc::Options.new
 
-args = ARGV.dup
 begin
-  options.parser.parse!(args)
+  options.parser.parse!(ARGV)
 rescue OptionParser::MissingArgument,
        OptionParser::InvalidArgument,
        OptionParser::InvalidOption
@@ -22,12 +22,12 @@ rescue OptionParser::MissingArgument,
 end
 
 opts = options.opts
-# TEMP
-if path = args.first
-  opts[:transfer_dat] = path
-end
-
 startTime = Time.now
-Gtin2atc::Builder.new(opts).run
+if ARGV.size == 1 and File.exists?(ARGV[0])
+  args = IO.readlines(ARGV[0])
+else
+  args = ARGV.clone
+end
+Gtin2atc::Builder.new(opts).run(args)
 diff = (Time.now-startTime).to_i
-puts "#{Time.now}: #{__LINE__} done. Took #{diff} seconds"; $stdout.sync
+Gtin2atc::Util.debug_msg "#{File.basename(__FILE__)} done. Took #{diff} seconds"
