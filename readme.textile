@@ -4,7 +4,7 @@ h3. usage
 
 There are three different useage:
 # gtin2atc --compare
-  Reads the GTIN/ATC-Code from BAG, SwissMedic, RefData and compares the from constency.
+  Reads the GTIN/ATC-Code from BAG, Swissmedic, RefData and compares the from constency.
   When adding --log it outputs a line for each difference/problem found.
 # gtin2atc gtin1 [gtinx]
   Search for ATC-Code with GTIN(s) passed on command line. Outputs a file gtin2atc.csv
