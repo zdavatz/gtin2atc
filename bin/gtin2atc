@@ -24,7 +24,8 @@ end
 opts = options.opts
 startTime = Time.now
 if ARGV.size == 1 and File.exists?(ARGV[0])
-  args = IO.readlines(ARGV[0])
+  args = []
+  IO.readlines(ARGV[0]).each{ |x| args << x.chomp}
 else
   args = ARGV.clone
 end
