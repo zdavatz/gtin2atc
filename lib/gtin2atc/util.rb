@@ -17,7 +17,7 @@ module Gtin2atc
       @@logging = default
     end
     def Util.info(msg)
-      puts Time.now.to_s + ': ' + msg
+      puts msg
       return unless @@logging
       Util.init
       @@checkLog.puts("#{Time.now}: #{msg}")
