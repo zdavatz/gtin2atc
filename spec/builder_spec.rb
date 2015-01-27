@@ -144,4 +144,21 @@ describe Gtin2atc::Builder do
 
   end
 
+  context 'when --compare --full is given' do
+    let(:cli) do
+      options = Gtin2atc::Options.new
+      options.parser.parse!('--compare --full'.split(' '))
+      Gtin2atc::Builder.new(options.opts)
+    end
+
+    it 'should produce a many report files' do
+      @res = buildr_capture(:stdout){ cli.run }
+      Dir.glob(Gtin2atc::WorkDir + '/compare_all_gtins*.txt').size.should == 5
+      Dir.glob(Gtin2atc::WorkDir + '/swissmedic_*.txt').size.should == 5
+      Dir.glob(Gtin2atc::WorkDir + '/compare_bag_to_swissindex_*.txt').size.should == 5
+      Dir.glob(Gtin2atc::WorkDir + '/compare_bag_to_swissmedic_*.txt').size.should == 5
+    end
+
+  end
+
 end

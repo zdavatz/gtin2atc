@@ -9,6 +9,7 @@ module Gtin2atc
       {
         :log          => false,
         :compare      => false,
+        :full         => false,
       }
     end
     def Options.help
@@ -25,6 +26,7 @@ Usage:
                         * BAG http://bag.e-mediat.net/SL2007.Web.External/File.axd?file=XMLPublications.zip
                         * SwissIndex e-mediat: http://swissindex.e-mediat.net/SwissindexPharma_out_V101
                         * or if the ATC_Code does not not match
+    -- full             if --compare and --full given produce 15 detailed report files
     -h,   --help         Show this help message.
 EOS
     end
@@ -33,6 +35,7 @@ EOS
       @opts   = Options.default_opts
       @parser.on('--log')             {|v| @opts[:log] = true }
       @parser.on('--compare')         {|v| @opts[:compare] = true }
+      @parser.on('--full')            {|v| @opts[:full] = true }
       @parser.on_tail('-h', '--help') { puts Options.help; exit }
     end
   end
