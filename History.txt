@@ -1,3 +1,8 @@
+=== 0.1.2 27.01.2015
+
+* Travis should install and test installed gem, too
+* Clarified when only matching in 2 of 3 places
+
 === 0.1.1 27.01.2015
 
 * Create many reporfiles with --compare --full
