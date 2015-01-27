@@ -1,3 +1,7 @@
+=== 0.1.1 27.01.2015
+
+* Create many reporfiles with --compare --full
+
 === 0.1.0 26.01.2015
 
 * Initial release
