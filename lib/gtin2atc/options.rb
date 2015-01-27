@@ -15,8 +15,8 @@ module Gtin2atc
   <<EOS
 #$0 ver.#{Gtin2atc::VERSION}
 Usage:
-  gtin2atc [--compare] [--log] [file_with_gtin or gtin] [gtin..]
-    If file_with_gtin is given only the GTIN (one per line) is outputted.
+  gtin2atc [--compare] [--log] [file_with_gtin or gtin or pharmacode] [gtin..]
+    If file_with_gtin is given only the GTIN (or pharamacode) (one per line) is outputted.
     If no file or gtin is given, alle GTIN will be processed.
     --log               log important actions
 
