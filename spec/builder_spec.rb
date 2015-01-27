@@ -60,7 +60,7 @@ describe Gtin2atc::Builder do
     it 'should produce more log output' do
       @res = buildr_capture(:stdout){ cli.run }
       @res.match(/swissindex_xml_extractor/).should_not == nil
-      @res.match(/SwissIndex: Extracted/).should_not == nil
+      @res.match(/swissindex: Extracted/).should_not == nil
     end
   end
 
@@ -129,9 +129,9 @@ describe Gtin2atc::Builder do
       [ /Found infos/,
         /Fetched from/,
         /Matching/,
-        /not in BAG/,
-        /not in SwissMedic/,
-        /not in SwissIndex/,
+        /not in bag/,
+        /not in swissmedic/,
+        /not in swissindex/,
         /ATC-Codes diff/,
       ].each {
         |pattern|
