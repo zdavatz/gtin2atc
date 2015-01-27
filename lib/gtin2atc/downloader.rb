@@ -115,7 +115,7 @@ module Gtin2atc
       xml
     end
   end
-  class BagXmlDownloader < Downloader
+  class BagDownloader < Downloader
     def init
       super
       @url ||= 'http://bag.e-mediat.net/SL2007.Web.External/File.axd?file=XMLPublications.zip'
@@ -125,7 +125,7 @@ module Gtin2atc
     end
     def download
       file = File.join(WorkDir, 'XMLPublications.zip')
-      Gtin2atc.log "BagXmlDownloader #{__LINE__}: #{file} from #{@url}"
+      Gtin2atc.log "BagDownloader #{__LINE__}: #{file} from #{@url}"
       if File.exists?(file) and diff_hours = ((Time.now-File.ctime(file)).to_i/3600) and diff_hours < 24
         Util.debug_msg "Skip download of #{file} as only #{diff_hours} hours old"
       else
@@ -190,7 +190,7 @@ module Gtin2atc
     end
   end
 
-  class SwissIndexDownloader < Downloader
+  class SwissindexDownloader < Downloader
     def initialize(options={}, type=:pharma, lang='DE')
       @type = (type == :pharma ? 'Pharma' : 'NonPharma')
       @lang = lang
