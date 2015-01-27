@@ -7,7 +7,12 @@ cache: bundler
 before_install:
   - gem --version
 
-script: bundle exec rspec
+script:
+  - bundle exec rspec
+  - bundle exec rake gem
+  - gem install pkg/*.gem
+  - gtin2atc --help
+  - gtin2atc --compare --full
 
 rvm:
   - 1.9.3

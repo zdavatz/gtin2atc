@@ -1,7 +1,7 @@
 require 'date'
 module Gtin2atc
   class Util
-    @@archive = File.expand_path(File.join(__FILE__, '../../..'))
+    @@archive = Dir.pwd
     @@today   = Date.today
     @@logging = false
     def Util.get_today

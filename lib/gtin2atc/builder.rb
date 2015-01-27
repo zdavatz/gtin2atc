@@ -209,14 +209,14 @@ module Gtin2atc
 "
       Util.info "Comparing ATC-Codes between bag and swissmedic"
       report('compare_bag_to_swissmedic', 'items had the same ATC code in bag, swissindex and swissmedic', matching_atc_codes)
-      report('compare_bag_to_swissmedic', 'are the same in swissmedic and bag', match_in_swissmedic)
+      report('compare_bag_to_swissmedic', 'are the same in swissmedic and bag, but not in swissindex', match_in_swissmedic)
       report('compare_bag_to_swissmedic', 'are different in swissmedic and bag', different_atc_in_swissmedic)
       report('compare_bag_to_swissmedic', 'are shorter in swissmedic than in bag', shorter_in_swissmedic)
       report('compare_bag_to_swissmedic', 'are longer in swissmedic than in bag', longer_in_swissmedic)
 
       Util.info "Comparing ATC-Codes between bag and swissindex"
       report('compare_bag_to_swissindex', 'items had the same ATC code in bag, swissindex and swissmedic', matching_atc_codes)
-      report('compare_bag_to_swissindex', 'are the same in swissindex and bag', match_in_swissindex)
+      report('compare_bag_to_swissindex', 'are the same in swissindex and bag, but not in swissmedic', match_in_swissindex)
       report('compare_bag_to_swissindex', 'are different in swissmedic and bag', different_atc_in_swissindex)
       report('compare_bag_to_swissindex', 'are shorter in swissindex than in bag', shorter_in_swissindex)
       report('compare_bag_to_swissindex', 'are longer in swissindex than in bag', longer_in_swissindex)
