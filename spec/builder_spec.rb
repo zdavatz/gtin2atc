@@ -132,7 +132,7 @@ describe Gtin2atc::Builder do
         /not in bag/,
         /not in swissmedic/,
         /not in swissindex/,
-        /ATC-Codes diff/,
+        /atc are different/,
       ].each {
         |pattern|
         unless pattern.match(@res)
@@ -153,8 +153,8 @@ describe Gtin2atc::Builder do
 
     it 'should produce a many report files' do
       @res = buildr_capture(:stdout){ cli.run }
-      Dir.glob(Gtin2atc::WorkDir + '/compare_all_gtins*.txt').size.should == 5
-      Dir.glob(Gtin2atc::WorkDir + '/swissmedic_*.txt').size.should == 5
+      Dir.glob(Gtin2atc::WorkDir + '/compare_all_*.txt').size.should == 5
+      Dir.glob(Gtin2atc::WorkDir + '/compare_swissmedic_to_swisssindex_*.txt').size.should == 5
       Dir.glob(Gtin2atc::WorkDir + '/compare_bag_to_swissindex_*.txt').size.should == 5
       Dir.glob(Gtin2atc::WorkDir + '/compare_bag_to_swissmedic_*.txt').size.should == 5
     end

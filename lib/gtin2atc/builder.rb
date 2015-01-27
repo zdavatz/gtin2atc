@@ -8,6 +8,11 @@ require 'mechanize'
 module Gtin2atc
   class Builder
     Strip_For_Sax_Machine = '<?xml version="1.0" encoding="utf-8"?>'+"\n"
+    SameInAll             = 'atc where the same in bag, swissindex and swissmedic'
+    AtcNotInSwissindex    = 'atc not in swissindex'
+    AtcNotInSwissmedic    = 'atc not in swissmedic'
+    AtcNotInBag           = 'atc not in bag'
+    AtcDifferent          = 'atc differed'
     def initialize(opts)
       Util.set_logging(opts[:log])
       @do_compare = opts[:compare]
@@ -174,25 +179,25 @@ module Gtin2atc
         if not @data_swissindex[gtin]
           not_in_swissindex << "#{gtin}: Not in swissindex #{item}"
         elsif atc_code == @data_swissindex[gtin][:atc_code]
-          match_in_swissindex << "swissindex #{gtin}: ATC code #{atc_code} matches swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          match_in_swissindex << "ATC code #{atc_code} for #{gtin} matches swissindex  #{@data_swissindex[gtin][:atc_code]}"
         elsif atc_code.length < @data_swissindex[gtin][:atc_code].length
-          longer_in_swissindex << "swissindex #{gtin}: ATC code #{atc_code} longer in swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          longer_in_swissindex << "ATC code #{item[:atc_code]} for #{gtin} longer in swissindex  #{@data_swissindex[gtin][:atc_code]}"
         elsif atc_code.length > @data_swissindex[gtin][:atc_code].length
-          shorter_in_swissindex << "swissindex #{gtin}: ATC code #{atc_code} shorter in swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          shorter_in_swissindex << "ATC code #{atc_code} for #{gtin} shorter in swissindex  #{@data_swissindex[gtin][:atc_code]}"
         else
-          matching_atc_codes << "swissindex #{gtin}: ATC code #{atc_code} differs from swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          matching_atc_codes << "ATC code #{atc_code} for #{gtin} differs from swissindex  #{@data_swissindex[gtin][:atc_code]}"
         end
 
         if not @data_swissmedic[gtin]
           not_in_swissmedic <<  "#{gtin}: Not in swissmedic #{item}"
         elsif atc_code == @data_swissmedic[gtin][:atc_code]
-          match_in_swissmedic << "swissmedic #{gtin}: ATC code #{atc_code} matches swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
+          match_in_swissmedic << "ATC code #{atc_code} for #{gtin} matches swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
         elsif atc_code.length < @data_swissmedic[gtin][:atc_code].length
-          longer_in_swissmedic << "swissmedic #{gtin}: ATC code #{atc_code} longer in swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
+          longer_in_swissmedic << "ATC code #{item[:atc_code]} for #{gtin} longer in swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
         elsif atc_code.length > @data_swissmedic[gtin][:atc_code].length
-          shorter_in_swissmedic << "swissmedic #{gtin}: ATC code #{atc_code} shorter in swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
+          shorter_in_swissmedic << "ATC code #{atc_code} for #{gtin} shorter in swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
         else
-          different_atc_in_swissmedic << "swissmedic #{gtin}: ATC code #{atc_code} differs from swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
+          different_atc_in_swissmedic << "ATC code #{atc_code} for #{gtin} differs from swissmedic  #{@data_swissmedic[gtin][:atc_code]}"
         end
         total1 = not_in_swissindex + match_in_swissindex + longer_in_swissindex +  shorter_in_swissindex + different_atc_in_swissindex
         total2 = not_in_swissmedic + match_in_swissmedic + longer_in_swissmedic +  shorter_in_swissmedic + different_atc_in_swissmedic
@@ -208,18 +213,20 @@ module Gtin2atc
   Not in swissindex #{not_in_swissindex.size}
 "
       Util.info "Comparing ATC-Codes between bag and swissmedic"
-      report('compare_bag_to_swissmedic', 'items had the same ATC code in bag, swissindex and swissmedic', matching_atc_codes)
-      report('compare_bag_to_swissmedic', 'are the same in swissmedic and bag, but not in swissindex', match_in_swissmedic)
-      report('compare_bag_to_swissmedic', 'are different in swissmedic and bag', different_atc_in_swissmedic)
-      report('compare_bag_to_swissmedic', 'are shorter in swissmedic than in bag', shorter_in_swissmedic)
-      report('compare_bag_to_swissmedic', 'are longer in swissmedic than in bag', longer_in_swissmedic)
+      topic_swissmedic = 'compare_bag_to_swissmedic'
+      report(topic_swissmedic, SameInAll, matching_atc_codes)
+      report(topic_swissmedic, 'atc are the same in swissmedic and bag, but not in swissindex', match_in_swissmedic)
+      report(topic_swissmedic, 'atc are different in swissmedic and bag', different_atc_in_swissmedic)
+      report(topic_swissmedic, 'atc are shorter in swissmedic than in bag', shorter_in_swissmedic)
+      report(topic_swissmedic, 'atc are longer in swissmedic than in bag', longer_in_swissmedic)
 
       Util.info "Comparing ATC-Codes between bag and swissindex"
-      report('compare_bag_to_swissindex', 'items had the same ATC code in bag, swissindex and swissmedic', matching_atc_codes)
-      report('compare_bag_to_swissindex', 'are the same in swissindex and bag, but not in swissmedic', match_in_swissindex)
-      report('compare_bag_to_swissindex', 'are different in swissmedic and bag', different_atc_in_swissindex)
-      report('compare_bag_to_swissindex', 'are shorter in swissindex than in bag', shorter_in_swissindex)
-      report('compare_bag_to_swissindex', 'are longer in swissindex than in bag', longer_in_swissindex)
+      topic_swissindex = 'compare_bag_to_swissindex'
+      report(topic_swissindex, SameInAll, matching_atc_codes)
+      report(topic_swissindex, 'atc are the same in swissindex and bag, but not in swissmedic', match_in_swissindex)
+      report(topic_swissindex, 'atc are different in swissmedic and bag', different_atc_in_swissindex)
+      report(topic_swissindex, 'atc are shorter in swissindex than in bag', shorter_in_swissindex)
+      report(topic_swissindex, 'atc are longer in swissindex than in bag', longer_in_swissindex)
     end
 
     def report(topic, msg, details)
@@ -229,7 +236,7 @@ module Gtin2atc
       File.open((full_msg+'.txt').gsub(/[: ,]+/, '_'), 'w+') {
         |file|
         file.puts full_msg
-        details.each{|detail| file.puts detail }
+        details.sort.each{|detail| file.puts detail }
       }
     end
     def check_swissmedic
@@ -256,13 +263,13 @@ module Gtin2atc
           next
         end
         if item[:atc_code] == @data_swissindex[gtin][:atc_code]
-          matching_atc_codes << "swissindex #{gtin}: ATC code #{item[:atc_code]} matches swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          matching_atc_codes << "ATC code #{atc_code} for #{gtin} matches swissindex  #{@data_swissindex[gtin][:atc_code]}"
         elsif item[:atc_code].length < @data_swissindex[gtin][:atc_code].length
-          longer_in_swissindex << "swissindex #{gtin}: ATC code #{item[:atc_code]} longer  in swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          longer_in_swissindex << "ATC code #{item[:atc_code]} for #{gtin} longer in swissindex  #{@data_swissindex[gtin][:atc_code]}"
         elsif item[:atc_code].length > @data_swissindex[gtin][:atc_code].length
-          shorter_in_swissmedic << "swissindex #{gtin}: ATC code #{item[:atc_code]} shorter in swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          shorter_in_swissmedic << "ATC code #{atc_code} for #{gtin} shorter in swissindex  #{@data_swissindex[gtin][:atc_code]}"
         else
-          different_atc << "swissindex #{gtin}: ATC code #{item[:atc_code]} differs from swissindex  #{@data_swissindex[gtin][:atc_code]}"
+          different_atc << "ATC code #{atc_code} for #{gtin} differs from swissindex  #{@data_swissindex[gtin][:atc_code]}"
         end
         unless @data_bag[gtin]
           not_in_bag << "#{gtin}: Not in bag #{item}"
@@ -278,11 +285,12 @@ module Gtin2atc
   Not in swissindex #{not_in_swissindex.size}
   Comparing ATC-Codes between swissmedic and swissindex
 "
-   report('swissmedic', 'match in swissindex and swissmedic', matching_atc_codes)
-   report('swissmedic', 'are different in swissindex and swissmedic', different_atc)
-   report('swissmedic', 'are the same in swissindex and swissmedic', matching_atc_codes)
-   report('swissmedic', 'are shorter in swissindex', shorter_in_swissmedic)
-   report('swissmedic', 'are longer in swissindex', longer_in_swissindex)
+   topic = 'compare swissmedic to swisssindex'
+   report(topic, 'atc match in swissindex and swissmedic', matching_atc_codes)
+   report(topic, 'atc are different in swissindex and swissmedic', different_atc)
+   report(topic, 'atc are the same in swissindex and swissmedic', matching_atc_codes)
+   report(topic, 'atc are shorter in swissindex', shorter_in_swissmedic)
+   report(topic, 'atc are longer in swissindex', longer_in_swissindex)
     end
 
     def compare
@@ -320,11 +328,12 @@ module Gtin2atc
   swissindex #{@data_swissindex.size} entries. Fetched from #{@swissindex.origin}
   swissmedic #{@data_swissmedic.size} entries. Fetched from #{@swissmedic.origin}
 "
-      report('compare_all_gtins', 'items had the same ATC code in bag, swissindex and swissmedic', matching_atc_codes)
-      report('compare_all_gtins', 'not in bag', not_in_bag)
-      report('compare_all_gtins', 'not in swissindex', not_in_swissindex)
-      report('compare_all_gtins', 'not in swissmedic', not_in_swissmedic)
-      report('compare_all_gtins', 'ATC-Codes differed', different_atc)
+      topic = 'compare all'
+      report(topic, SameInAll,          matching_atc_codes)
+      report(topic, AtcNotInBag,        not_in_bag)
+      report(topic, AtcNotInSwissindex, not_in_swissindex)
+      report(topic, AtcNotInSwissmedic, not_in_swissmedic)
+      report(topic, AtcDifferent,       different_atc)
     end
   end
   class Swissmedic
