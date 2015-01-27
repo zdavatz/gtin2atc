@@ -110,7 +110,11 @@ module Gtin2atc
       CSV.open(output_name,'w+') do |csvfile|
         csvfile << ["gtin", "ATC", 'pharmacode', 'description']
         @data_swissindex.sort.each do |gtin, item|
-          csvfile << [gtin, item[:atc_code], item[:pharmacode], item[:description]] if  @do_compare or gtins_to_parse.size == 0 or gtins_to_parse.index(gtin.to_s)
+          if @do_compare or gtins_to_parse.size == 0 or
+              gtins_to_parse.index(gtin.to_s) or
+              gtins_to_parse.index(item[:pharmacode])
+            csvfile << [gtin, item[:atc_code], item[:pharmacode], item[:description]]
+          end
         end
       end
       msg = "SwissIndex: Extracted #{gtins_to_parse.size} of #{@data_swissindex.size} items into #{output_name} for #{gtins_to_parse}"

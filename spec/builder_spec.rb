@@ -64,6 +64,25 @@ describe Gtin2atc::Builder do
     end
   end
 
+
+
+  context 'when 20273 41803 (Pharmacodes) is given' do
+    let(:cli) do
+      options = Gtin2atc::Options.new
+      options.parser.parse!('20273 41803'.split(' '))
+      Gtin2atc::Builder.new(options.opts)
+    end
+
+    it 'should produce a csv with a two GTIN' do
+      @res = buildr_capture(:stdout){ cli.run(["20273", "41803"]) }
+      check_csv(CSV_NAME)
+      inhalt = IO.readlines(CSV_NAME)
+      inhalt.size.should eq 2+1 # one header lines + two items
+      inhalt[1].chomp.should eq '7680147690482,N07BC02,41803,KETALGIN Inj Lös 10 mg/ml'
+      inhalt[2].chomp.should eq '7680353660163,B03AE10,20273,KENDURAL Depottabl'
+    end
+  end
+
   context 'when 7680147690482 7680353660163 is given' do
     let(:cli) do
       options = Gtin2atc::Options.new
