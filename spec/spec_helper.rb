@@ -34,6 +34,7 @@ module ServerMockHelper
   
   def setup_server_mocks
     setup_bag_xml_server_mock
+    setup_epha_atc_server_mock
   end
   def setup_bag_xml_server_mock
     # zip
@@ -49,6 +50,14 @@ module ServerMockHelper
         :status  => 200,
         :headers => {'Content-Type' => 'application/zip; charset=utf-8'},
         :body    => stub_response)
+  end
+  def setup_epha_atc_server_mock
+    # zip
+    stub_url = 'https://download.epha.ch/cleaned/atc.csv'
+    stub_response = File.read(File.join(Gtin2atc::SpecData, 'atc.csv'))
+    stub_request(:get, stub_url).
+          with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+          to_return(:status => 200, :body => stub_response, :headers => {})
   end
 end
 

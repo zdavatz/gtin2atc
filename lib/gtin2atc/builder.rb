@@ -4,6 +4,7 @@ require "gtin2atc/options"
 require "gtin2atc/downloader"
 require "gtin2atc/xml_definitions"
 require 'mechanize'
+require 'open-uri'
 
 module Gtin2atc
   class Builder
@@ -32,6 +33,21 @@ module Gtin2atc
         sum += fct*val[idx].to_i
       end
       ((10-(sum%10))%10).to_s
+    end
+    def epha_atc_extractor
+      data = {}
+      body = open('https://download.epha.ch/cleaned/atc.csv').read
+      Util.debug_msg "epha_atc_extractor is #{body.size} bytes long"
+      CSV::Converters[:blank_to_nil] = lambda do |field|
+        field && field.empty? ? nil : field
+      end
+      csv = CSV.new(body, { :headers => false, :col_sep => '|' } )
+      csv.to_a.each{
+        |line|
+        data[line[0]] = line[2] if line[2]
+      }
+      Util.debug_msg "epha_atc_extractor extracted #{data.size} items"
+      data
     end
     def swissmedic_xls_extractor
       @swissmedic = SwissmedicDownloader.new
@@ -111,15 +127,18 @@ module Gtin2atc
     def run(gtins_to_parse=[])
       Util.debug_msg("run #{gtins_to_parse}")
       Util.debug_msg("@use_swissindex true")
+      @data_epha_atc = epha_atc_extractor
       @data_swissindex = swissindex_xml_extractor
       output_name =  File.join(Util.get_archive, @do_compare ? 'gtin2atc_swissindex.csv' : 'gtin2atc.csv')
       CSV.open(output_name,'w+') do |csvfile|
-        csvfile << ["gtin", "ATC", 'pharmacode', 'description']
+        csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'daily drug dose']
         @data_swissindex.sort.each do |gtin, item|
           if @do_compare or gtins_to_parse.size == 0 or
-              gtins_to_parse.index(gtin.to_s) or
-              gtins_to_parse.index(item[:pharmacode])
-            csvfile << [gtin, item[:atc_code], item[:pharmacode], item[:description]]
+            gtins_to_parse.index(gtin.to_s) or
+            gtins_to_parse.index(item[:pharmacode])
+            atc = item[:atc_code]
+            ddd = @data_epha_atc[atc]
+            csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd]
           end
         end
       end
@@ -148,7 +167,6 @@ module Gtin2atc
       check_swissmedic
       compare
     end
-    # require 'pry';
     def check_bag
       matching_atc_codes = []
 
@@ -201,8 +219,6 @@ module Gtin2atc
         end
         total1 = not_in_swissindex + match_in_swissindex + longer_in_swissindex +  shorter_in_swissindex + different_atc_in_swissindex
         total2 = not_in_swissmedic + match_in_swissmedic + longer_in_swissmedic +  shorter_in_swissmedic + different_atc_in_swissmedic
-        # binding.pry if j != (total1 + matching_atc_codes)
-        # binding.pry if j != (total2 + matching_atc_codes)
         # Util.debug_msg "#{gtin}: j #{j} finished #{total1} #{total2} #{atc_code} matching_atc_codes #{matching_atc_codes}"
       }
       Util.info  "Result of verifing data from bag (SL):
