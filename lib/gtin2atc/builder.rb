@@ -36,11 +36,8 @@ module Gtin2atc
     end
     def epha_atc_extractor
       data = {}
-      body = open('https://download.epha.ch/cleaned/atc.csv').read
+      body = open('https://download.epha.ch/cleaned/atc.csv').read.force_encoding('UTF-8')
       Util.debug_msg "epha_atc_extractor is #{body.size} bytes long"
-      CSV::Converters[:blank_to_nil] = lambda do |field|
-        field && field.empty? ? nil : field
-      end
       csv = CSV.new(body, { :headers => false, :col_sep => '|' } )
       csv.to_a.each{
         |line|
