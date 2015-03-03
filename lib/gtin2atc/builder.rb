@@ -126,6 +126,7 @@ module Gtin2atc
       Util.debug_msg("@use_swissindex true")
       @data_epha_atc = epha_atc_extractor
       @data_swissindex = swissindex_xml_extractor
+      emitted_ids = []
       output_name =  File.join(Util.get_archive, @do_compare ? 'gtin2atc_swissindex.csv' : 'gtin2atc.csv')
       CSV.open(output_name,'w+') do |csvfile|
         csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'daily drug dose']
@@ -135,11 +136,22 @@ module Gtin2atc
             gtins_to_parse.index(item[:pharmacode])
             atc = item[:atc_code]
             ddd = @data_epha_atc[atc]
+            emitted_ids << gtin if gtin
+            emitted_ids << item[:pharmacode] if item[:pharmacode]
             csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd]
           end
         end
       end
       msg = "swissindex: Extracted #{gtins_to_parse.size} of #{@data_swissindex.size} items into #{output_name} for #{gtins_to_parse}"
+      Util.debug_msg(msg)
+      missing_ids = []
+      gtins_to_parse.each{
+        |id|
+          next if emitted_ids.index(id)
+          missing_ids << id
+      }
+      File.open('pharmacode_gtin_not_found.txt', 'w+') { |f| f.write missing_ids.join("\n") }
+      msg = "swissindex: Could not find info for #{missing_ids.size} missing ids see file pharmacode_gtin_not_found.txt"
       Util.debug_msg(msg)
       return unless @do_compare
       @data_bag = bag_xml_extractor

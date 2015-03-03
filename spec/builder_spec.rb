@@ -175,9 +175,10 @@ describe Gtin2atc::Builder do
       Gtin2atc::Builder.new(options.opts)
     end
 
-    it 'should produce a many report files' do
+    it 'should produce many report files' do
       @res = buildr_capture(:stdout){ cli.run }
       Dir.glob(Gtin2atc::WorkDir + '/compare_all_*.txt').size.should == 5
+      Dir.glob(Gtin2atc::WorkDir + '/pharmacode_gtin_not_found.txt').size.should == 1
       Dir.glob(Gtin2atc::WorkDir + '/compare_swissmedic_to_swisssindex_*.txt').size.should == 5
       Dir.glob(Gtin2atc::WorkDir + '/compare_bag_to_swissindex_*.txt').size.should == 5
       Dir.glob(Gtin2atc::WorkDir + '/compare_bag_to_swissmedic_*.txt').size.should == 5
