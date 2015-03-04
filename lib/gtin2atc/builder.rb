@@ -17,9 +17,10 @@ module Gtin2atc
     CsvOutputOptions      =  { :col_sep => ';', :encoding => 'UTF-8'}
     def initialize(opts)
       Util.set_logging(opts[:log])
+      @output = opts[:output]
       @do_compare = opts[:compare]
       @gen_reports = opts[:compare] and opts[:full]
-      Util.debug_msg "Builder: opts are #{opts} @do_compare is #{@do_compare}"
+      Util.debug_msg "Builder: opts are #{opts} @do_compare is #{@do_compare} output #{@output}"
       @data_swissmedic = {}
       @data_bag = {}
       @data_swissindex = {}
@@ -111,7 +112,6 @@ module Gtin2atc
           item[:SELLING_UNITS]   = article.SELLING_UNITS
           item[:MEASURE]         = article.MEASURE
           data[gtin]     = item
-          puts "#{gtin.inspect} : #{item}"
         end
         Util.debug_msg "oddb_calc_xml_extractor extracted #{data.size} items"
       end
@@ -153,7 +153,11 @@ module Gtin2atc
       @data_epha_atc = epha_atc_extractor
       @data_swissindex = swissindex_xml_extractor
       emitted_ids = []
-      output_name =  File.join(Util.get_archive, @do_compare ? 'gtin2atc_swissindex.csv' : 'gtin2atc.csv')
+      if @do_compare
+        output_name =  File.join(Util.get_archive, 'gtin2atc_swissindex.csv')
+      else
+        output_name =  File.join(Util.get_archive, @output)
+      end
       CSV.open(output_name,'w+', CsvOutputOptions) do |csvfile|
         csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'daily drug dose', 'selling units']
         @data_swissindex.sort.each do |gtin, item|

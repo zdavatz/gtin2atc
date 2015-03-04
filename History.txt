@@ -1,5 +1,6 @@
 === 0.1.4 03.03.2015
 
+* Added option --output to allow specifying another output file
 * Add selling units ot generated gtin2atc.csv file
 * Use ';' as column separator for generated CSV files
 * Create file pharmacode_gtin_not_found.txt

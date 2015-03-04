@@ -48,11 +48,10 @@ describe Gtin2atc::Builder do
   def check_csv(filename)
     File.exists?(filename).should eq true
     inhalt = IO.readlines(filename)
-    puts inhalt
-    /^\d{13},\w{4}/.should match inhalt[1]
+    /^\d{13};\w{4}/.should match inhalt[1]
     # Packungsgrösse, Dosierung, DDD, Route of Administration
     /^gtin;ATC;pharmacode;description;daily drug dose/.should match inhalt.first
-    /^7680316440115;B03AA07;20244;FERRO-GRADUMET Depottabl,"0,2 g O Fe2\+"/.should match inhalt.join("\n")
+    /^7680316440115;B03AA07;20244;FERRO-GRADUMET Depottabl;0,2 g O Fe2\+;/.should match inhalt.join("\n")
   end
 
   context 'when 20273 41803 (Pharmacodes) is given' do
@@ -144,8 +143,8 @@ describe Gtin2atc::Builder do
     it 'should produce three correct csv' do
       @res = buildr_capture(:stdout){ cli.run }
       check_csv('gtin2atc_bag.csv')
-      check_csv('gtin2atc_swissindex.csv')
       check_csv('gtin2atc_swissmedic.csv')
+      check_csv('gtin2atc_swissindex.csv')
     end
 
     it 'should produce a good logging output' do
@@ -186,4 +185,17 @@ describe Gtin2atc::Builder do
 
   end
 
+  context 'when --output is given' do
+    let(:cli) do
+      options = Gtin2atc::Options.new
+      options.parser.parse!('--output tst.csv'.split(' '))
+      Gtin2atc::Builder.new(options.opts)
+    end
+
+    it 'should produce a correct tst.csv' do
+       # @res = buildr_capture(:stdout){ cli.run }
+      cli.run
+      check_csv('tst.csv')
+    end
+  end
 end

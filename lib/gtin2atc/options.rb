@@ -10,6 +10,7 @@ module Gtin2atc
         :log          => false,
         :compare      => false,
         :full         => false,
+        :output       => 'gtin2atc.csv',
       }
     end
     def Options.help
@@ -20,6 +21,7 @@ Usage:
     If file_with_gtin is given only the GTIN (or pharamacode) (one per line) is outputted.
     If no file or gtin is given, alle GTIN will be processed.
     --log               log important actions
+    --output  filename  Specify output file to be written (default is gtin2atc.csv)
 
     --compare           download an compare GTIN/ATC_code from BAG, SwissIndex and RefData
                         For each GTIN we will output a message if it can be only found in the
@@ -36,6 +38,7 @@ EOS
       @parser.on('--log')             {|v| @opts[:log] = true }
       @parser.on('--compare')         {|v| @opts[:compare] = true }
       @parser.on('--full')            {|v| @opts[:full] = true }
+      @parser.on('--output file')     {|v| @opts[:output] = v }
       @parser.on_tail('-h', '--help') { puts Options.help; exit }
     end
   end
