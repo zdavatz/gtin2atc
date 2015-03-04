@@ -248,3 +248,44 @@ class MedicalInformationsEntry
   element :medicalInformations, :class => MedicalInformationsContent
 end
 
+class COMPOSITIONContent
+  include SAXMachine
+  element :NAME
+  element :QTY
+  element :UNIT
+end
+
+class COMPOSITIONEntry
+  include SAXMachine
+  element :ARTICLEs, :class => COMPOSITIONContent
+end
+
+class ARTICLEContent
+  include SAXMachine
+  element :GTIN
+  element :NAME
+  element :PKG_SIZE
+  element :MEASURE
+  element :SELLING_UNITS
+  element :GALENIC_FORM
+  element :GALENIC_GROUP
+  element :COMPOSITIONS, :class => COMPOSITIONContent
+end
+
+
+class ARTICLEEntryXX
+  include SAXMachine
+  element :ARTICLE, :class => ARTICLEContent
+end
+
+class ARTICLESContent
+  include SAXMachine
+  attribute :ReleaseDate
+  elements :ARTICLE, :class => ARTICLEContent
+end
+
+class ARTICLESEntry
+  include SAXMachine
+  element :ARTICLES, :class => ARTICLESContent
+end
+

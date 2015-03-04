@@ -14,6 +14,7 @@ module Gtin2atc
     AtcNotInSwissmedic    = 'atc not in swissmedic'
     AtcNotInBag           = 'atc not in bag'
     AtcDifferent          = 'atc differed'
+    CsvOutputOptions      =  { :col_sep => ';', :encoding => 'UTF-8'}
     def initialize(opts)
       Util.set_logging(opts[:log])
       @do_compare = opts[:compare]
@@ -93,6 +94,29 @@ module Gtin2atc
       Util.debug_msg "swissindex_xml_extractor extracted #{data.size} items"
       data
     end
+    def oddb_calc_xml_extractor
+      filename = 'oddb_calc.xml'
+      data = {}
+      unless File.exists?('oddb_calc.xml')
+        puts "Unable to open #{filename}"
+      else
+        xml = IO.read(filename)
+        Util.debug_msg "oddb_calc_xml_extractor xml is #{xml.size} bytes long"
+        result = ARTICLESEntry.parse(xml.sub(Strip_For_Sax_Machine, ''), :lazy => true)
+        result.ARTICLES.ARTICLE.each do |article|
+          item = {}
+          gtin = article.GTIN.to_i
+          item[:gtin]            = gtin
+          item[:PKG_SIZE]        = article.PKG_SIZE
+          item[:SELLING_UNITS]   = article.SELLING_UNITS
+          item[:MEASURE]         = article.MEASURE
+          data[gtin]     = item
+          puts "#{gtin.inspect} : #{item}"
+        end
+        Util.debug_msg "oddb_calc_xml_extractor extracted #{data.size} items"
+      end
+      data
+    end
     def bag_xml_extractor
       data = {}
       @bag = BagDownloader.new
@@ -121,24 +145,27 @@ module Gtin2atc
       Util.debug_msg "bag_xml_extractor extracted #{data.size} items. Skipped #{@bag_entries_without_gtin} entries without gtin"
       data
     end
+
     def run(gtins_to_parse=[])
       Util.debug_msg("run #{gtins_to_parse}")
       Util.debug_msg("@use_swissindex true")
+      @oddb_calc = oddb_calc_xml_extractor
       @data_epha_atc = epha_atc_extractor
       @data_swissindex = swissindex_xml_extractor
       emitted_ids = []
       output_name =  File.join(Util.get_archive, @do_compare ? 'gtin2atc_swissindex.csv' : 'gtin2atc.csv')
-      CSV.open(output_name,'w+') do |csvfile|
-        csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'daily drug dose']
+      CSV.open(output_name,'w+', CsvOutputOptions) do |csvfile|
+        csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'daily drug dose', 'selling units']
         @data_swissindex.sort.each do |gtin, item|
           if @do_compare or gtins_to_parse.size == 0 or
             gtins_to_parse.index(gtin.to_s) or
-            gtins_to_parse.index(item[:pharmacode])
+            gtins_to_parse.index(item[:pharmacode].to_s)
             atc = item[:atc_code]
             ddd = @data_epha_atc[atc]
-            emitted_ids << gtin if gtin
-            emitted_ids << item[:pharmacode] if item[:pharmacode]
-            csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd]
+            selling_units = @oddb_calc[gtin] ? @oddb_calc[gtin][:SELLING_UNITS] : nil
+            emitted_ids << gtin.to_i if gtin
+            emitted_ids << item[:pharmacode].to_i if item[:pharmacode]
+            csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd, selling_units]
           end
         end
       end
@@ -147,16 +174,16 @@ module Gtin2atc
       missing_ids = []
       gtins_to_parse.each{
         |id|
-          next if emitted_ids.index(id)
+          next if emitted_ids.index(id.to_i)
           missing_ids << id
       }
-      File.open('pharmacode_gtin_not_found.txt', 'w+') { |f| f.write missing_ids.join("\n") }
+      File.open('pharmacode_gtin_not_found.txt', 'w+', CsvOutputOptions) { |f| f.write missing_ids.join("\n") }
       msg = "swissindex: Could not find info for #{missing_ids.size} missing ids see file pharmacode_gtin_not_found.txt"
       Util.debug_msg(msg)
       return unless @do_compare
       @data_bag = bag_xml_extractor
       output_name =  File.join(Util.get_archive, 'gtin2atc_bag.csv')
-      CSV.open(output_name,'w+') do |csvfile|
+      CSV.open(output_name,'w+', CsvOutputOptions) do |csvfile|
         csvfile << ["gtin", "ATC", 'description']
         @data_bag.sort.each do |gtin, item|
           csvfile << [gtin, item[:atc_code], item[:description]]
@@ -165,7 +192,7 @@ module Gtin2atc
       Util.debug_msg "bag: Extracted #{gtins_to_parse.size} of #{@data_bag.size} items into #{output_name} for #{gtins_to_parse}"
       @data_swissmedic = swissmedic_xls_extractor
       output_name =  File.join(Util.get_archive, 'gtin2atc_swissmedic.csv')
-      CSV.open(output_name,'w+') do |csvfile|
+      CSV.open(output_name,'w+', CsvOutputOptions) do |csvfile|
         csvfile << ["gtin", "ATC", 'description']
         @data_swissmedic.sort.each do |gtin, item|
           csvfile << [gtin, item[:atc_code], item[:pharmacode], item[:description]]

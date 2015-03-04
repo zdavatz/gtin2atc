@@ -1,5 +1,7 @@
 === 0.1.4 03.03.2015
 
+* Add selling units ot generated gtin2atc.csv file
+* Use ';' as column separator for generated CSV files
 * Create file pharmacode_gtin_not_found.txt
 
 === 0.1.3 27.01.2015

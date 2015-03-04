@@ -51,8 +51,8 @@ describe Gtin2atc::Builder do
     puts inhalt
     /^\d{13},\w{4}/.should match inhalt[1]
     # Packungsgrösse, Dosierung, DDD, Route of Administration
-    /^gtin,ATC,pharmacode,description,daily drug dose/.should match inhalt.first
-    /^7680316440115,B03AA07,20244,FERRO-GRADUMET Depottabl,"0,2 g O Fe2\+"/.should match inhalt.join("\n")
+    /^gtin;ATC;pharmacode;description;daily drug dose/.should match inhalt.first
+    /^7680316440115;B03AA07;20244;FERRO-GRADUMET Depottabl,"0,2 g O Fe2\+"/.should match inhalt.join("\n")
   end
 
   context 'when 20273 41803 (Pharmacodes) is given' do
@@ -102,8 +102,8 @@ describe Gtin2atc::Builder do
       check_csv(CSV_NAME)
       inhalt = IO.readlines(CSV_NAME)
       inhalt.size.should eq 2+1 # one header lines + two items
-      inhalt[1].chomp.should eq '7680147690482,N07BC02,41803,KETALGIN Inj Lös 10 mg/ml,"25 mg O,P"'
-      inhalt[2].chomp.should eq '7680353660163,B03AE10,20273,KENDURAL Depottabl,'
+      inhalt[1].chomp.should eq '7680147690482;N07BC02;41803;KETALGIN Inj Lös 10 mg/ml;25 mg O,P;'
+      inhalt[2].chomp.should eq '7680353660163;B03AE10;20273;KENDURAL Depottabl;;'
     end
   end
 
@@ -123,15 +123,15 @@ describe Gtin2atc::Builder do
       /7680353660163/.match(inhalt[1]).should == nil
       /7680147690482/.match(inhalt[2]).should == nil
       /7680353660163/.match(inhalt[2]).should_not == nil
-      /7680353660163,B03AE10,20273,KENDURAL Depottabl/.match(inhalt[2]).should_not == nil
+      /7680353660163;B03AE10;20273;KENDURAL Depottabl/.match(inhalt[2]).should_not == nil
     end
   end
 
   def check_csv(filename)
     File.exists?(filename).should eq true
     inhalt = IO.readlines(filename)
-    /^gtin,ATC/.match(inhalt.first).should_not == nil
-    /^\d{13},\w{4}/.match(inhalt[1]).should_not == nil
+    /^gtin;ATC/.match(inhalt.first).should_not == nil
+    /^\d{13};\w{4}/.match(inhalt[1]).should_not == nil
   end
 
   context 'when --compare is given' do
