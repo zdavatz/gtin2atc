@@ -21,6 +21,7 @@ end
 describe Gtin2atc::Builder do
   include ServerMockHelper
   CSV_NAME = 'gtin2atc.csv'
+  FERRO = '7680316440115;B03AA07;20244;FERRO-GRADUMET Depottabl;;;30;Ferrum(ii);105.0;mg;;;0,2 g O Fe2+'
   before(:each) do
     @savedDir = Dir.pwd
     FileUtils.makedirs Gtin2atc::WorkDir
@@ -50,8 +51,8 @@ describe Gtin2atc::Builder do
     inhalt = IO.readlines(filename)
     /^\d{13};\w{4}/.should match inhalt[1]
     # Packungsgrösse, Dosierung, DDD, Route of Administration
-    /^gtin;ATC;pharmacode;description;selling units;name;qty;unit;ddd:qty;ddd:unit;ddd:full_text/.should match inhalt.first
-    /^7680316440115;B03AA07;20244;FERRO-GRADUMET Depottabl;30;Ferrum(ii);105.0;mg;0.2;g;O Fe2+;Fe2+/.should match inhalt.join("\n")
+    /^gtin;ATC;pharmacode;description;exfactory_price;public_price;selling units;name;qty;unit;ddd:qty;ddd:unit;ddd:full_text/.should match inhalt.first
+    IO.read(filename).index(FERRO).should_not == nil
   end
 
   context 'when 20273 41803 (Pharmacodes) is given' do
@@ -101,8 +102,8 @@ describe Gtin2atc::Builder do
       check_csv(CSV_NAME)
       inhalt = IO.readlines(CSV_NAME)
       inhalt.size.should eq 2+1 # one header lines + two items
-      inhalt[1].chomp.should eq '7680147690482;N07BC02;41803;KETALGIN Inj Lös 10 mg/ml;;;;;;;25 mg O,P'
-      inhalt[2].chomp.should eq '7680353660163;B03AE10;20273;KENDURAL Depottabl;;;;;;;'
+      inhalt[1].chomp.should eq '7680147690482;N07BC02;41803;KETALGIN Inj Lös 10 mg/ml;;;;;;;25.0;mg;O,P'
+      inhalt[2].chomp.should eq '7680353660163;B03AE10;20273;KENDURAL Depottabl;;;;;;;;;'
     end
   end
 
@@ -208,10 +209,14 @@ describe Gtin2atc::Builder do
     it 'should contain dose for FERRO-GRADUMET Depottab' do
       oddb_calc_xml = File.expand_path(File.join( __FILE__, '../data/oddb_calc.xml'))
       FileUtils.cp(oddb_calc_xml, Gtin2atc::WorkDir, :verbose => false)
-      @res = buildr_capture(:stdout){ cli.run() }
+      # buildr_capture(:stdout){ cli.run() }
+      cli.run()
       check_csv(CSV_NAME)
       inhalt = IO.read(CSV_NAME)
-      inhalt.index("\n7680316440115;B03AA07;20244;FERRO-GRADUMET Depottabl;;;30;Ferrum(ii);105.0;mg;0,2 g O Fe2+\n").should_not == nil
+      puts inhalt
+      inhalt.index(FERRO).should_not == nil
+      inhalt.index('7680291520390;N02BE01;31532;BEN-U-RON Supp 250 mg Kind;;;;;;;;;"3 g O,P,R; 0,75 g O Kinder DDD; 0,375 g R Säuglings DDD; 0,75 g R Kinder DDD"').should_not == nil
+      inhalt.index('7680147700112;N07BC02;41826;KETALGIN Tabl 5 mg;;;;;;;25.0;mg;O,P').should_not == nil
     end
   end
 

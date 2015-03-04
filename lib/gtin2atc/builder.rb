@@ -15,6 +15,10 @@ module Gtin2atc
     AtcNotInBag           = 'atc not in bag'
     AtcDifferent          = 'atc differed'
     CsvOutputOptions      =  { :col_sep => ';', :encoding => 'UTF-8'}
+    Mesurements = [ 'g', 'kg', 'l', 'mg', 'ml', 'cm', 'GBq']
+    # see  Selection of units of WHO DDD guidelines
+    RouteOfAdministrations = ['Inhal', 'R', 'N', 'O', 'SL', 'P', 'V', 'TD']
+
     def initialize(opts)
       Util.set_logging(opts[:log])
       @output = opts[:output]
@@ -153,6 +157,37 @@ module Gtin2atc
       data
     end
 
+    # return [qty, unit, roa] for simple, valid ddd
+    # return [nil, nil, full_text] for structured DDDs like Standarddosis: 10 Tabletten oder 50 ml Mixtur
+    # a simple ddd is valid if meets the following three criteria
+    # first part is a float value
+    # second part is a unit e.g. ml
+    # third part is one or several (separated by ',') RouteOfAdministrations
+    def get_valid_ddd(full_text)
+      result =[nil, nil, full_text]
+      return result unless full_text
+      return result if full_text.index(';') # e.g. 0,12 g O,R; 18 mg P; 60 mg SL; 3 mg TD; 50 mg TD Gel; 12 mg P bezogen auf Testosteronundecanoat
+      return result if full_text.index(':') # e.g. Standarddosis: 10 Tabletten oder 50 ml Mixture
+      if full_text
+        parts = full_text.split(' ')
+        return result if parts.size > 3
+        qty = parts[0].sub(',', '.').to_f
+        if Mesurements.index(parts[1]) and qty != 0.0
+          roas = parts[2].split(',')
+          valid = roas.size > 0
+          roas.each{
+            |roa|
+            unless RouteOfAdministrations.index(roa)
+              valid = false
+              break
+            end
+          }
+          result =  [qty, parts[1], parts[2]] if valid
+        end
+      end
+      result
+    end
+
     def run(gtins_to_parse=[], output_name=nil)
       Util.debug_msg("run #{gtins_to_parse}")
       Util.debug_msg("@use_swissindex true")
@@ -174,7 +209,7 @@ module Gtin2atc
             gtins_to_parse.index(gtin.to_s) or
             gtins_to_parse.index(item[:pharmacode].to_s)
             atc = item[:atc_code]
-            ddd = @data_epha_atc[atc]
+            ddd = get_valid_ddd(@data_epha_atc[atc])
             selling_units = @oddb_calc[gtin] ? @oddb_calc[gtin][:SELLING_UNITS] : nil
             exfactory_price = @data_bag[gtin] ? @data_bag[gtin][:exfactory_price] : nil
             public_price    = @data_bag[gtin] ? @data_bag[gtin][:public_price] : nil
