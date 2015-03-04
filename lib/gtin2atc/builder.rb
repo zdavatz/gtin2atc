@@ -137,6 +137,10 @@ module Gtin2atc
             gtin = gtin.to_i
             item[:gtin] = gtin
             item[:name] = seq.NameDe + " " +  pac.DescriptionDe
+            if pac.Prices
+              item[:exfactory_price] = pac.Prices.ExFactoryPrice.Price if pac.Prices.ExFactoryPrice
+              item[:public_price]    = pac.Prices.PublicPrice.Price if pac.Prices.PublicPrice
+            end
             data[gtin] = item
             Util.debug_msg "run_bag_extractor add #{item}" if $VERBOSE
           else
@@ -155,6 +159,7 @@ module Gtin2atc
       @oddb_calc = oddb_calc_xml_extractor
       @data_epha_atc = epha_atc_extractor
       @data_swissindex = swissindex_xml_extractor
+      @data_bag = bag_xml_extractor
       emitted_ids = []
       if @do_compare
         output_name =  File.join(Util.get_archive, 'gtin2atc_swissindex.csv')
@@ -163,7 +168,7 @@ module Gtin2atc
         output_name =  File.join(Util.get_archive, output_name)
       end
       CSV.open(output_name,'w+', CsvOutputOptions) do |csvfile|
-        csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'daily drug dose', 'selling units']
+        csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'exfactory_price', 'public_price', 'selling units', 'name', 'qty', 'unit', 'ddd:qty', 'ddd:unit', 'ddd:full_text']
         @data_swissindex.sort.each do |gtin, item|
           if @do_compare or gtins_to_parse.size == 0 or
             gtins_to_parse.index(gtin.to_s) or
@@ -171,13 +176,15 @@ module Gtin2atc
             atc = item[:atc_code]
             ddd = @data_epha_atc[atc]
             selling_units = @oddb_calc[gtin] ? @oddb_calc[gtin][:SELLING_UNITS] : nil
+            exfactory_price = @data_bag[gtin] ? @data_bag[gtin][:exfactory_price] : nil
+            public_price    = @data_bag[gtin] ? @data_bag[gtin][:public_price] : nil
             emitted_ids << gtin.to_i if gtin
             emitted_ids << item[:pharmacode].to_i if item[:pharmacode]
             if @oddb_calc[gtin] and @oddb_calc[gtin][:COMPOSITIONS]
               comp = @oddb_calc[gtin][:COMPOSITIONS].COMPONENT.first
-              csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd, selling_units, comp.NAME, comp.QTY, comp.UNIT]
+              csvfile << [gtin, atc, item[:pharmacode], item[:description], exfactory_price, public_price, selling_units, comp.NAME, comp.QTY, comp.UNIT, ddd].flatten
             else
-              csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd, selling_units]
+              csvfile << [gtin, atc, item[:pharmacode], item[:description], exfactory_price, public_price, selling_units, nil, nil, nil,  ddd].flatten
             end
           end
         end
@@ -194,7 +201,6 @@ module Gtin2atc
       msg = "swissindex: Could not find info for #{missing_ids.size} missing ids see file pharmacode_gtin_not_found.txt"
       Util.debug_msg(msg)
       return unless @do_compare
-      @data_bag = bag_xml_extractor
       output_name =  File.join(Util.get_archive, 'gtin2atc_bag.csv')
       CSV.open(output_name,'w+', CsvOutputOptions) do |csvfile|
         csvfile << ["gtin", "ATC", 'description']
