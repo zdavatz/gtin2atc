@@ -20,6 +20,9 @@ Usage:
     If file_with_gtin is given only the GTIN (or pharamacode) (one per line) is outputted.
     If a second parameter output_file is given the name of the generated csv file.
     If no file or gtin is given, alle GTIN will be processed.
+    If a file oddb_calc.xml (produced via oddb2xml --calc) is found in the current directory,
+    its content is read to add the daily drug dose and dose information for each article.
+
     --log               log important actions
 
     --compare           download an compare GTIN/ATC_code from BAG, SwissIndex and RefData
