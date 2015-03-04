@@ -129,7 +129,7 @@ module Gtin2atc
       if File.exists?(file) and diff_hours = ((Time.now-File.ctime(file)).to_i/3600) and diff_hours < 24
         Util.debug_msg "Skip download of #{file} as only #{diff_hours} hours old"
       else
-        FileUtils.rm_f(file, :verbose => true)
+        FileUtils.rm_f(file, :verbose => false)
         begin
           response = @agent.get(@url)
           response.save_as(file)

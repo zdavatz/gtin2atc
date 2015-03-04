@@ -149,7 +149,7 @@ module Gtin2atc
       data
     end
 
-    def run(gtins_to_parse=[])
+    def run(gtins_to_parse=[], output_name=nil)
       Util.debug_msg("run #{gtins_to_parse}")
       Util.debug_msg("@use_swissindex true")
       @oddb_calc = oddb_calc_xml_extractor
@@ -159,7 +159,8 @@ module Gtin2atc
       if @do_compare
         output_name =  File.join(Util.get_archive, 'gtin2atc_swissindex.csv')
       else
-        output_name =  File.join(Util.get_archive, @output)
+        output_name ||= 'gtin2atc.csv'
+        output_name =  File.join(Util.get_archive, output_name)
       end
       CSV.open(output_name,'w+', CsvOutputOptions) do |csvfile|
         csvfile << ["gtin", "ATC", 'pharmacode', 'description', 'daily drug dose', 'selling units']

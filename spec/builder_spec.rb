@@ -185,17 +185,17 @@ describe Gtin2atc::Builder do
 
   end
 
-  context 'when --output is given' do
+  context 'when outputfile is given' do
     let(:cli) do
       options = Gtin2atc::Options.new
-      options.parser.parse!('--output tst.csv'.split(' '))
+      options.parser.parse!('7680316440115 tst.csv'.split(' '))
       Gtin2atc::Builder.new(options.opts)
     end
 
     it 'should produce a correct tst.csv' do
-       # @res = buildr_capture(:stdout){ cli.run }
-      cli.run
-      check_csv('tst.csv')
+      tst_name = 'tst.csv'
+      buildr_capture(:stdout){ cli.run(["7680316440115"], tst_name) }
+      check_csv(tst_name)
     end
   end
 
@@ -209,8 +209,8 @@ describe Gtin2atc::Builder do
       oddb_calc_xml = File.expand_path(File.join( __FILE__, '../data/oddb_calc.xml'))
       FileUtils.cp(oddb_calc_xml, Gtin2atc::WorkDir, :verbose => false)
       @res = buildr_capture(:stdout){ cli.run() }
-      inhalt = IO.readlines(CSV_NAME)
       check_csv(CSV_NAME)
+      inhalt = IO.readlines(CSV_NAME)
       inhalt.index("7680316440115;B03AA07;20244;FERRO-GRADUMET Depottabl;0,2 g O Fe2+;30;Ferrum(ii);105.0;mg\n").should_not == nil
     end
   end

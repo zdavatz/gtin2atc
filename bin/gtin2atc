@@ -23,12 +23,12 @@ end
 
 opts = options.opts
 startTime = Time.now
-if ARGV.size == 1 and File.exists?(ARGV[0])
-  args = []
-  IO.readlines(ARGV[0]).each{ |x| args << x.chomp}
+if File.exists?(ARGV[0])
+  gtins2parse = []
+  IO.readlines(ARGV[0]).each{ |x| gtins2parse << x.chomp}
 else
-  args = ARGV.clone
+  gtins2parse = ARGV.clone
 end
-Gtin2atc::Builder.new(opts).run(args)
+Gtin2atc::Builder.new(opts).run(gtins2parse, ARGV[1])
 diff = (Time.now-startTime).to_i
 Gtin2atc::Util.debug_msg "#{File.basename(__FILE__)} done. Took #{diff} seconds"

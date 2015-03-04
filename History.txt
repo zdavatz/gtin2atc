@@ -1,7 +1,7 @@
 === 0.1.4 03.03.2015
 
+* Added optional second parameter to specify output file
 * Added output for dosis (name, unit, qty) for mono-preparations
-* Added option --output to allow specifying another output file
 * Add selling units ot generated gtin2atc.csv file
 * Use ';' as column separator for generated CSV files
 * Create file pharmacode_gtin_not_found.txt
