@@ -111,6 +111,9 @@ module Gtin2atc
           item[:PKG_SIZE]        = article.PKG_SIZE
           item[:SELLING_UNITS]   = article.SELLING_UNITS
           item[:MEASURE]         = article.MEASURE
+          if article.COMPOSITIONS.COMPONENT and article.COMPOSITIONS.COMPONENT.size == 1
+            item[:COMPOSITIONS]    = article.COMPOSITIONS
+          end
           data[gtin]     = item
         end
         Util.debug_msg "oddb_calc_xml_extractor extracted #{data.size} items"
@@ -169,7 +172,12 @@ module Gtin2atc
             selling_units = @oddb_calc[gtin] ? @oddb_calc[gtin][:SELLING_UNITS] : nil
             emitted_ids << gtin.to_i if gtin
             emitted_ids << item[:pharmacode].to_i if item[:pharmacode]
-            csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd, selling_units]
+            if @oddb_calc[gtin] and @oddb_calc[gtin][:COMPOSITIONS]
+              comp = @oddb_calc[gtin][:COMPOSITIONS].COMPONENT.first
+              csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd, selling_units, comp.NAME, comp.QTY, comp.UNIT]
+            else
+              csvfile << [gtin, atc, item[:pharmacode], item[:description], ddd, selling_units]
+            end
           end
         end
       end

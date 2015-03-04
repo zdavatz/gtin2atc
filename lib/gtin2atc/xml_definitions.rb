@@ -248,17 +248,29 @@ class MedicalInformationsEntry
   element :medicalInformations, :class => MedicalInformationsContent
 end
 
-class COMPOSITIONContent
+class COMPONENTContent
   include SAXMachine
   element :NAME
   element :QTY
   element :UNIT
 end
 
-class COMPOSITIONEntry
+class COMPONENTEntry
   include SAXMachine
-  element :ARTICLEs, :class => COMPOSITIONContent
+  element :COMPONENT, :class => COMPONENTContent
 end
+
+class COMPONENTSContent
+  include SAXMachine
+  element :components, :class => COMPONENTContent
+end
+
+class COMPOSITIONSContent
+  include SAXMachine
+  attribute :ReleaseDate
+  elements :COMPONENT, :class => COMPONENTContent
+end
+
 
 class ARTICLEContent
   include SAXMachine
@@ -269,13 +281,7 @@ class ARTICLEContent
   element :SELLING_UNITS
   element :GALENIC_FORM
   element :GALENIC_GROUP
-  element :COMPOSITIONS, :class => COMPOSITIONContent
-end
-
-
-class ARTICLEEntryXX
-  include SAXMachine
-  element :ARTICLE, :class => ARTICLEContent
+  element :COMPOSITIONS, :class => COMPOSITIONSContent
 end
 
 class ARTICLESContent

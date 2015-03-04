@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ARTICLES xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://wiki.oddb.org/wiki.php?pagename=Swissmedic.Datendeklaration" CREATION_DATETIME="2015-03-04T11:42:36+0100" PROD_DATE="2015-03-04T11:42:36+0100" VALID_DATE="2015-03-04T11:42:36+0100">
+  <ARTICLE>
+    <GTIN>7680316440115</GTIN>
+    <NAME>Ferro-Gradumet, compresse a rilascio prolungato</NAME>
+    <PKG_SIZE>30</PKG_SIZE>
+    <SELLING_UNITS>30</SELLING_UNITS>
+    <MEASURE>Tablette(n)</MEASURE>
+    <GALENIC_FORM>compresse a rilascio prolungato</GALENIC_FORM>
+    <GALENIC_GROUP>Unknown</GALENIC_GROUP>
+    <COMPOSITIONS>
+      <COMPONENT>
+        <NAME>Ferrum(ii)</NAME>
+        <QTY>105.0</QTY>
+        <UNIT>mg</UNIT>
+      </COMPONENT>
+    </COMPOSITIONS>
+  </ARTICLE>
+  <ARTICLE>
+    <GTIN>7680317080280</GTIN>
+    <NAME>Urinex, Lösung</NAME>
+    <PKG_SIZE>360</PKG_SIZE>
+    <SELLING_UNITS>360</SELLING_UNITS>
+    <MEASURE>ml</MEASURE>
+    <GALENIC_FORM>Lösung</GALENIC_FORM>
+    <GALENIC_GROUP>unbekannt</GALENIC_GROUP>
+    <COMPOSITIONS>
+      <COMPONENT>
+        <NAME>Spiraeae Ulmariae Flos</NAME>
+        <QTY>360.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Betulae Folium</NAME>
+        <QTY>144.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Bucco Folium</NAME>
+        <QTY>36.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Orthosiphonis Folium</NAME>
+        <QTY>600.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Uvae Ursi Folium</NAME>
+        <QTY>396.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Phaseoli Fructus Sine Semine</NAME>
+        <QTY>144.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Equiseti Herba</NAME>
+        <QTY>72.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Solidaginis Virgaureae Herba</NAME>
+        <QTY>504.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+      <COMPONENT>
+        <NAME>Calami Rhizoma</NAME>
+        <QTY>144.0</QTY>
+        <UNIT>mg/15 ml</UNIT>
+      </COMPONENT>
+    </COMPOSITIONS>
+  </ARTICLE>
+</ARTICLES>
