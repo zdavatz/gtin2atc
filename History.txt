@@ -1,5 +1,6 @@
 === 0.1.5 04.03.2015
 
+* Splitted ddd into qty, unit, route of administration
 * Added exfactory and public price
 * Added optional second parameter to specify output file
 * Added output for dosis (name, unit, qty) for mono-preparations
