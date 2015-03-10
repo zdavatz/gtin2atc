@@ -53,7 +53,7 @@ module ServerMockHelper
   end
   def setup_epha_atc_server_mock
     # zip
-    stub_url = 'https://download.epha.ch/cleaned/atc.csv'
+    stub_url = 'https://download.epha.ch/data/atc/atc.csv'
     stub_response = File.read(File.join(Gtin2atc::SpecData, 'atc.csv'))
     stub_request(:get, stub_url).
           with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).

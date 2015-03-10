@@ -44,7 +44,7 @@ module Gtin2atc
       data = {}
       body = open('https://download.epha.ch/data/atc/atc.csv').read.force_encoding('UTF-8')
       Util.debug_msg "epha_atc_extractor is #{body.size} bytes long"
-      csv = CSV.new(body, { :headers => false, :col_sep => '|' } )
+      csv = CSV.new(body, { :headers => false, :col_sep => ',' } )
       csv.to_a.each{
         |line|
         data[line[0]] = line[2] if line[2]
@@ -171,7 +171,7 @@ module Gtin2atc
       if full_text
         parts = full_text.split(' ')
         return result if parts.size > 3
-        qty = parts[0].sub(',', '.').to_f
+        qty = parts[0] ? parts[0].sub(',', '.').to_f : ''
         if Mesurements.index(parts[1]) and qty != 0.0
           roas = parts[2].split(',')
           valid = roas.size > 0
