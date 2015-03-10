@@ -1,3 +1,8 @@
+=== 0.1.6 10.03.2015
+
+* Adapted to changed delimiter
+* updated EPha URL for wido ATC download.
+
 === 0.1.5 04.03.2015
 
 * Splitted ddd into qty, unit, route of administration
